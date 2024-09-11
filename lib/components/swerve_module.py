@@ -3,8 +3,8 @@ from wpimath import units
 from wpimath.geometry import Rotation2d
 from wpimath.kinematics import SwerveModulePosition, SwerveModuleState
 from wpilib import SmartDashboard
-from rev import CANSparkBase, CANSparkLowLevel, CANSparkMax, SparkAbsoluteEncoder
-from lib.classes import SwerveModuleLocation, MotorIdleMode
+from rev import CANSparkBase, CANSparkLowLevel, CANSparkFlex, CANSparkMax, SparkAbsoluteEncoder
+from lib.classes import SwerveModuleLocation, MotorIdleMode, SwerveModuleMotorControllerType
 from lib import utils, logger
 if TYPE_CHECKING: import constants
 
@@ -24,7 +24,7 @@ class SwerveModule:
     self._baseKey = f'Robot/Drive/SwerveModules/{self._location.name}'
     self._drivingTargetSpeed: units.meters_per_second = 0
 
-    self._drivingMotor = CANSparkMax(drivingMotorCANId, CANSparkLowLevel.MotorType.kBrushless)
+    self._drivingMotor = CANSparkFlex(drivingMotorCANId, CANSparkLowLevel.MotorType.kBrushless) if self._constants.kDrivingMotorControllerType == SwerveModuleMotorControllerType.SparkFlex else CANSparkMax(drivingMotorCANId, CANSparkLowLevel.MotorType.kBrushless)
     self._drivingEncoder = self._drivingMotor.getEncoder()
     self._drivingPIDController = self._drivingMotor.getPIDController()
     self._drivingMotor.setCANMaxRetries(10)

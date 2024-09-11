@@ -27,12 +27,6 @@ class MotorIdleMode(Enum):
   Brake = auto()
   Coast = auto()
 
-class SwerveModuleLocation(Enum):
-  FrontLeft = auto()
-  FrontRight = auto()
-  RearLeft = auto()
-  RearRight = auto()
-
 class DriveOrientation(Enum):
   Field = auto()
   Robot = auto()
@@ -48,6 +42,16 @@ class DriveLockState(Enum):
 class DriveDriftCorrection(Enum):
   Enabled = auto()
   Disabled = auto()
+
+class SwerveModuleLocation(Enum):
+  FrontLeft = auto()
+  FrontRight = auto()
+  RearLeft = auto()
+  RearRight = auto()
+
+class SwerveModuleMotorControllerType(Enum):
+  SparkMax = auto()
+  SparkFlex = auto()
 
 class ControllerRumbleMode(Enum):
   Both = auto()

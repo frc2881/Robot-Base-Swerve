@@ -2,16 +2,16 @@ from typing import TYPE_CHECKING
 from commands2 import Command, cmd
 from pathplannerlib.auto import AutoBuilder
 from pathplannerlib.path import PathPlannerPath
-if TYPE_CHECKING: from commands.game_commands import GameCommands
+if TYPE_CHECKING: from robot_container import RobotContainer
 import constants
 from classes import AutoPath
 
 class AutoCommands:
   def __init__(
       self,
-      gameCommands: "GameCommands"
+      robot: "RobotContainer"
     ) -> None:
-    self._gameCommands = gameCommands
+    self.robot = robot
 
   def _getPath(self, autoPath: AutoPath) -> PathPlannerPath:
     return constants.Game.Auto.kPaths.get(autoPath)
@@ -21,11 +21,17 @@ class AutoCommands:
       path, constants.Subsystems.Drive.kPathFindingConstraints
     ).withName("AutoCommands:Move")
   
+  def _alignToTarget(self) -> Command:
+    return cmd.sequence(
+      self.robot.gameCommands.alignRobotToTargetCommand()
+    ).withName("AutoCommands:AlignToTarget")
+  
   # ######################################################################
   # ################################ AUTOS ###############################
   # ######################################################################
 
   def test(self) -> Command:
     return cmd.sequence(
-      self._move(self._getPath(AutoPath.Test))
+      self._move(self._getPath(AutoPath.Test)),
+      self._alignToTarget()
     ).withName("AutoCommands:Test")

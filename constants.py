@@ -8,14 +8,9 @@ from photonlibpy.photonPoseEstimator import PoseStrategy
 from pathplannerlib.controller import PIDConstants as PathPlannerPIDConstants
 from pathplannerlib.pathfinding import PathConstraints
 from pathplannerlib.path import PathPlannerPath
-from lib.classes import PIDConstants
+from lib.classes import PIDConstants, SwerveModuleMotorControllerType
 from lib.utils import logger
 from classes import AutoPath
-
-class Controllers:
-  kDriverControllerPort: int = 0
-  kOperatorControllerPort: int = 1
-  kInputDeadband: units.percent = 0.1
 
 class Subsystems:
   class Drive:
@@ -73,6 +68,7 @@ class Subsystems:
       kFreeSpeed: units.revolutions_per_minute = 5676
       kWheelDiameter: units.meters = units.inchesToMeters(3.0)
       kWheelCircumference: units.meters = kWheelDiameter * math.pi
+      kDrivingMotorControllerType = SwerveModuleMotorControllerType.SparkMax
       kDrivingMotorPinionTeeth: int = 14
       kDrivingMotorReduction: float = (45.0 * 20) / (kDrivingMotorPinionTeeth * 15)
       kDrivingMotorFreeSpeedRps: float = kFreeSpeed / 60
@@ -118,6 +114,11 @@ class Sensors:
     }
 
 _aprilTagFieldLayout = AprilTagFieldLayout().loadField(AprilTagField.k2024Crescendo)
+
+class Controllers:
+  kDriverControllerPort: int = 0
+  kOperatorControllerPort: int = 1
+  kInputDeadband: units.percent = 0.1
 
 class Game:
   class Field:
