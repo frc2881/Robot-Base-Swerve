@@ -10,18 +10,18 @@ class GameCommands:
       self,
       robot: "RobotContainer"
     ) -> None:
-    self.robot = robot
+    self._robot = robot
 
   def alignRobotToTargetCommand(self) -> Command:
     return cmd.sequence(
       cmd.parallel(
-        self.robot.driveSubsystem.alignToTargetCommand(
-          lambda: self.robot.localizationSubsystem.getPose(), 
-          lambda: self.robot.localizationSubsystem.getTargetHeading()
+        self._robot.driveSubsystem.alignToTargetCommand(
+          lambda: self._robot.localizationSubsystem.getPose(), 
+          lambda: self._robot.localizationSubsystem.getTargetHeading()
         ),
         self.rumbleControllersCommand(ControllerRumbleMode.Operator, ControllerRumblePattern.Short),
         cmd.sequence(
-          cmd.waitUntil(lambda: self.robot.driveSubsystem.isAlignedToTarget()),
+          cmd.waitUntil(lambda: self._robot.driveSubsystem.isAlignedToTarget()),
           self.rumbleControllersCommand(ControllerRumbleMode.Driver, ControllerRumblePattern.Short)
         )
       )
@@ -29,8 +29,8 @@ class GameCommands:
 
   def rumbleControllersCommand(self, mode: ControllerRumbleMode, pattern: ControllerRumblePattern) -> Command:
     return cmd.parallel(
-      self.robot.driverController.rumbleCommand(pattern).onlyIf(lambda: mode == ControllerRumbleMode.Driver or mode == ControllerRumbleMode.Both),
-      self.robot.operatorController.rumbleCommand(pattern).onlyIf(lambda: mode == ControllerRumbleMode.Operator or mode == ControllerRumbleMode.Both)
+      self._robot.driverController.rumbleCommand(pattern).onlyIf(lambda: mode == ControllerRumbleMode.Driver or mode == ControllerRumbleMode.Both),
+      self._robot.operatorController.rumbleCommand(pattern).onlyIf(lambda: mode == ControllerRumbleMode.Operator or mode == ControllerRumbleMode.Both)
     ).onlyIf(
       lambda: RobotBase.isReal() and not utils.isAutonomousMode()
     ).withName("GameCommands:RumbleControllers")

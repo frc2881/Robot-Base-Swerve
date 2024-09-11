@@ -10,7 +10,6 @@ from pathplannerlib.pathfinding import PathConstraints
 from pathplannerlib.path import PathPlannerPath
 from lib.classes import PIDConstants, SwerveModuleMotorControllerType
 from lib.utils import logger
-from classes import AutoPath
 
 class Subsystems:
   class Drive:
@@ -19,7 +18,7 @@ class Subsystems:
     kDriveBaseRadius: units.meters = Translation2d().distance(Translation2d(kWheelBase / 2, kTrackWidth / 2))
 
     kTranslationSpeedMax: units.meters_per_second = 4.8
-    kRotationSpeedMax: units.radians_per_second = 2 * math.pi
+    kRotationSpeedMax: units.radians_per_second = 2 * math.pi # type: ignore
 
     kInputLimit: units.percent = 0.6
     kInputRateLimit: units.percent = 0.5
@@ -137,8 +136,3 @@ class Game:
         units.inchesToMeters(0),
         Rotation3d()
       )
-
-  class Auto:
-    kPaths: dict[AutoPath, PathPlannerPath] = {
-      AutoPath.Test: PathPlannerPath.fromPathFile(AutoPath.Test.name)
-    }

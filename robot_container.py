@@ -19,7 +19,6 @@ class RobotContainer:
     self._setupCommands()
     self._setupTriggers()
     self._setupControllers()
-    self._setupAutos()
 
   def _setupSensors(self) -> None:
     self.gyroSensor = GyroSensor_NAVX2(constants.Sensors.Gyro.NAVX2.kSerialPort)
@@ -42,10 +41,29 @@ class RobotContainer:
       lambda: self.gyroSensor.getRotation(),
       lambda: self.driveSubsystem.getSwerveModulePositions()
     )
+    AutoBuilder.configureHolonomic(
+      lambda: self.localizationSubsystem.getPose(), 
+      lambda pose: self.localizationSubsystem.resetPose(pose), 
+      lambda: self.driveSubsystem.getSpeeds(), 
+      lambda chassisSpeeds: self.driveSubsystem.drive(chassisSpeeds), 
+      HolonomicPathFollowerConfig(
+        constants.Subsystems.Drive.kPathFollowerTranslationPIDConstants,
+        constants.Subsystems.Drive.kPathFollowerRotationPIDConstants,
+        constants.Subsystems.Drive.kTranslationSpeedMax, 
+        constants.Subsystems.Drive.kDriveBaseRadius, 
+        ReplanningConfig()
+      ),
+      lambda: utils.getAlliance() == Alliance.Red,
+      self.driveSubsystem
+    )
     
   def _setupCommands(self) -> None:
     self.gameCommands = GameCommands(self)
+
+    self._autoChooser = SendableChooser()
+    self._autoChooser.setDefaultOption("None", lambda: cmd.none())
     self.autoCommands = AutoCommands(self)
+    SmartDashboard.putData("Robot/Auto/Command", self._autoChooser)
 
   def _setupTriggers(self) -> None:
     pass
@@ -59,8 +77,8 @@ class RobotContainer:
       constants.Controllers.kOperatorControllerPort, 
       constants.Controllers.kInputDeadband
     )
-    DriverStation.silenceJoystickConnectionWarning(not utils.isCompetitionMode())
-  
+    DriverStation.silenceJoystickConnectionWarning(True)
+
     # ===== DRIVER ========================================
     self.driveSubsystem.setDefaultCommand(
       self.driveSubsystem.driveCommand(
@@ -100,32 +118,17 @@ class RobotContainer:
     self.operatorController.x().whileTrue(cmd.none())
     self.operatorController.start().whileTrue(cmd.none())
     self.operatorController.back().whileTrue(cmd.none())
+    
+  def resetRobot(self) -> None:
+    self.driveSubsystem.reset()
 
-  def _setupAutos(self) -> None:
-    AutoBuilder.configureHolonomic(
-      lambda: self.localizationSubsystem.getPose(), 
-      lambda pose: self.localizationSubsystem.resetPose(pose), 
-      lambda: self.driveSubsystem.getSpeeds(), 
-      lambda chassisSpeeds: self.driveSubsystem.drive(chassisSpeeds), 
-      HolonomicPathFollowerConfig(
-        constants.Subsystems.Drive.kPathFollowerTranslationPIDConstants,
-        constants.Subsystems.Drive.kPathFollowerRotationPIDConstants,
-        constants.Subsystems.Drive.kTranslationSpeedMax, 
-        constants.Subsystems.Drive.kDriveBaseRadius, 
-        ReplanningConfig()
-      ),
-      lambda: utils.getAlliance() == Alliance.Red,
-      self.driveSubsystem
-    )
-    self._autoChooser = SendableChooser()
-    self._autoChooser.setDefaultOption("None", lambda: cmd.none())
-    self._autoChooser.addOption("Test", lambda: self.autoCommands.test())
-    SmartDashboard.putData("Robot/Auto/Command", self._autoChooser)
-    
-  def getAutonomousCommand(self) -> Command:
+  def getAutoCommand(self) -> Command:
     return self._autoChooser.getSelected()()
+  
+  def addAutoCommand(self, name: str, command: object) -> None:
+    self._autoChooser.addOption(name, command)
     
-  def autonomousInit(self) -> None:
+  def autoInit(self) -> None:
     self.resetRobot()
 
   def teleopInit(self) -> None:
@@ -134,6 +137,3 @@ class RobotContainer:
 
   def testInit(self) -> None:
     self.resetRobot()
-
-  def resetRobot(self) -> None:
-    self.driveSubsystem.reset()

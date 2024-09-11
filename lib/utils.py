@@ -43,7 +43,7 @@ def isAutonomousMode() -> bool:
   return getRobotMode() == RobotMode.Auto
 
 def isCompetitionMode() -> bool:
-  return DriverStation.getMatchTime() != -1
+  return DriverStation.isFMSAttached()
 
 def getAlliance() -> Alliance:
   return Alliance(DriverStation.getAlliance() or Alliance.Blue)

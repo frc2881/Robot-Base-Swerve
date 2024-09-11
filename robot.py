@@ -16,7 +16,7 @@ class Robot(TimedCommandRobot):
     Robot._instance = self
     logger.start()
     telemetry.start()
-    self._autonomousCommand = cmd.none()
+    self._autoCommand = cmd.none()
     self._robotContainer = RobotContainer()
 
   def robotPeriodic(self) -> None:
@@ -35,18 +35,18 @@ class Robot(TimedCommandRobot):
 
   def autonomousInit(self) -> None:
     logger.mode(RobotMode.Auto)
-    self._robotContainer.autonomousInit()
-    self._autonomousCommand = self._robotContainer.getAutonomousCommand()
-    if self._autonomousCommand is not None:
-      self._autonomousCommand.schedule()
+    self._robotContainer.autoInit()
+    self._autoCommand = self._robotContainer.getAutoCommand()
+    if self._autoCommand is not None:
+      self._autoCommand.schedule()
 
   def autonomousPeriodic(self) -> None:
     pass
 
   def teleopInit(self) -> None:
     logger.mode(RobotMode.Teleop)
-    if self._autonomousCommand is not None:
-      self._autonomousCommand.cancel()
+    if self._autoCommand is not None:
+      self._autoCommand.cancel()
     self._robotContainer.teleopInit()
 
   def teleopPeriodic(self) -> None:
