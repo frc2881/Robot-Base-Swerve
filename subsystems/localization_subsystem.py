@@ -67,7 +67,9 @@ class LocalizationSubsystem(Subsystem):
               if utils.isValueInRange(target.getPoseAmbiguity(), 0, constants.Sensors.Pose.kVisionMaxPoseAmbiguity):
                 self._poseEstimator.addVisionMeasurement(pose, estimatedRobotPose.timestampSeconds, constants.Sensors.Pose.kVisionSingleTagStandardDeviations)
                 break
-    self._pose = self._poseEstimator.getEstimatedPosition()
+    pose = self._poseEstimator.getEstimatedPosition()
+    if utils.isPoseInBounds(pose, constants.Game.Field.kBounds):
+      self._pose = self._poseEstimator.getEstimatedPosition()
 
   def getPose(self) -> Pose2d:
     return self._pose
