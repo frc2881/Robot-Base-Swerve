@@ -60,8 +60,10 @@ class RobotContainer:
   def _setupCommands(self) -> None:
     self.gameCommands = GameCommands(self)
 
+    self._autoCommand = cmd.none()
     self._autoChooser = SendableChooser()
-    self._autoChooser.setDefaultOption("None", lambda: cmd.none())
+    self._autoChooser.setDefaultOption("None", cmd.none)
+    self._autoChooser.onChange(lambda command: setattr(self, "_autoCommand", command()))
     self.autoCommands = AutoCommands(self)
     SmartDashboard.putData("Robot/Auto/Command", self._autoChooser)
 
@@ -79,7 +81,9 @@ class RobotContainer:
     )
     DriverStation.silenceJoystickConnectionWarning(True)
 
-    # ===== DRIVER ========================================
+    # ###############################################################
+    # ########################## DRIVER #############################
+    # ###############################################################
     self.driveSubsystem.setDefaultCommand(
       self.driveSubsystem.driveCommand(
         lambda: self.driverController.getLeftY(),
@@ -103,7 +107,9 @@ class RobotContainer:
     self.driverController.start().onTrue(self.gyroSensor.calibrateCommand())
     self.driverController.back().onTrue(self.gyroSensor.resetCommand())
 
-    # ===== OPERATOR ========================================
+    # ###############################################################
+    # ########################## OPERATOR ###########################
+    # ###############################################################
     self.operatorController.rightTrigger().whileTrue(cmd.none())
     self.operatorController.rightBumper().whileTrue(cmd.none())
     self.operatorController.leftTrigger().whileTrue(cmd.none())
@@ -118,16 +124,16 @@ class RobotContainer:
     self.operatorController.x().whileTrue(cmd.none())
     self.operatorController.start().whileTrue(cmd.none())
     self.operatorController.back().whileTrue(cmd.none())
-    
-  def resetRobot(self) -> None:
-    self.driveSubsystem.reset()
 
   def getAutoCommand(self) -> Command:
-    return self._autoChooser.getSelected()()
+    return self._autoCommand
   
   def addAutoCommand(self, name: str, command: object) -> None:
     self._autoChooser.addOption(name, command)
-    
+
+  def resetRobot(self) -> None:
+    self.driveSubsystem.reset()
+
   def autoInit(self) -> None:
     self.resetRobot()
 

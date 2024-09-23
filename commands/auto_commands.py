@@ -13,12 +13,31 @@ class AutoCommands:
     self._robot = robot
 
     self._paths: dict[str, PathPlannerPath] = {
-      "Test0": PathPlannerPath.fromPathFile("Test0"),
-      "Test2": PathPlannerPath.fromPathFile("Test2")
+      "[0]_Test": PathPlannerPath.fromPathFile("[0]_Test"),
+      "[2]_Test": PathPlannerPath.fromPathFile("[2]_Test")
     }
 
-    self._robot.addAutoCommand("[ 0 ] Test", lambda: self.auto_0_test())
-    self._robot.addAutoCommand("[ 2 ] Test", lambda: self.auto_2_test())
+    self._robot.addAutoCommand("[0] Test", self.auto_0_test)
+    self._robot.addAutoCommand("[2] Test", self.auto_2_test)
+  
+  # ######################################################################
+  # ################################ AUTOS ###############################
+  # ######################################################################
+
+  def auto_0_test(self) -> Command:
+    return cmd.sequence(
+      self._move(self._paths.get("[0]_Test"))
+    ).withName("AutoCommands:[0] Test")
+
+  def auto_2_test(self) -> Command:
+    return cmd.sequence(
+      self._move(self._paths.get("[2]_Test")),
+      self._alignToTarget()
+    ).withName("AutoCommands:[2] Test")
+  
+  # ######################################################################
+  # ################################ UTILS ###############################
+  # ######################################################################
 
   def _move(self, path: PathPlannerPath) -> Command:
     return AutoBuilder.pathfindThenFollowPath(
@@ -29,19 +48,3 @@ class AutoCommands:
     return cmd.sequence(
       self._robot.gameCommands.alignRobotToTargetCommand()
     ).withName("AutoCommands:AlignToTarget")
-  
-  # ######################################################################
-  # ################################ AUTOS ###############################
-  # ######################################################################
-
-  def auto_0_test(self) -> Command:
-    return cmd.sequence(
-      self._move(self._paths.get("Test0"))
-    ).withName("AutoCommands:0_Test")
-
-  def auto_2_test(self) -> Command:
-    return cmd.sequence(
-      self._move(self._paths.get("Test2")),
-      self._alignToTarget()
-    ).withName("AutoCommands:2_Test")
-  
