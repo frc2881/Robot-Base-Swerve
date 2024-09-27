@@ -31,18 +31,18 @@ class GyroSensor_NAVX2():
   def getTurnRate(self) -> units.degrees_per_second:
     return self._gyro.getRate()
   
-  def alignRobotToField(self, robotPose: Pose2d) -> None:
-    self._reset(utils.wrapAngle(robotPose.rotation().degrees() + utils.getValueForAlliance(0.0, 180.0)))
-
   def _reset(self, heading: units.degrees) -> None:
     self._gyro.reset()
     self._gyro.setAngleAdjustment(-heading)
+
+  def resetRobotToField(self, robotPose: Pose2d) -> None:
+    self._reset(utils.wrapAngle(robotPose.rotation().degrees() + utils.getValueForAlliance(0.0, 180.0)))
 
   def resetCommand(self) -> Command:
     return cmd.runOnce(
       lambda: self._reset(0)
     ).ignoringDisable(True).withName("GyroSensor:Reset")
-  
+
   def _calibrate(self) -> None:
     if RobotBase.isReal():
       self._gyro.calibrate() # NO-OP as navX2 currently does automatic calibration

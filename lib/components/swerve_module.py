@@ -4,27 +4,23 @@ from wpimath.geometry import Rotation2d
 from wpimath.kinematics import SwerveModulePosition, SwerveModuleState
 from wpilib import SmartDashboard
 from rev import CANSparkBase, CANSparkLowLevel, CANSparkFlex, CANSparkMax, SparkAbsoluteEncoder
-from lib.classes import SwerveModuleLocation, MotorIdleMode, SwerveModuleMotorControllerType
+from lib.classes import SwerveModuleConfig, MotorIdleMode, MotorControllerType
 from lib import utils, logger
 if TYPE_CHECKING: import constants
 
 class SwerveModule:
   def __init__(
       self,
-      location: SwerveModuleLocation,
-      drivingMotorCANId: int,
-      turningMotorCANId: int,
-      turningOffset: units.radians,
+      config: SwerveModuleConfig,
       constants: "constants.Subsystems.Drive.SwerveModule"
     ) -> None:
+    self._config = config
     self._constants = constants
-    self._location = location
-    self._turningOffset = turningOffset
-    
-    self._baseKey = f'Robot/Drive/SwerveModules/{self._location.name}'
+
+    self._baseKey = f'Robot/Drive/SwerveModules/{self._config.location.name}'
     self._drivingTargetSpeed: units.meters_per_second = 0
 
-    self._drivingMotor = CANSparkFlex(drivingMotorCANId, CANSparkLowLevel.MotorType.kBrushless) if self._constants.kDrivingMotorControllerType == SwerveModuleMotorControllerType.SparkFlex else CANSparkMax(drivingMotorCANId, CANSparkLowLevel.MotorType.kBrushless)
+    self._drivingMotor = CANSparkFlex(self._config.drivingMotorCANId, CANSparkLowLevel.MotorType.kBrushless) if self._constants.kDrivingMotorControllerType == MotorControllerType.SparkFlex else CANSparkMax(self._config.drivingMotorCANId, CANSparkLowLevel.MotorType.kBrushless)
     self._drivingEncoder = self._drivingMotor.getEncoder()
     self._drivingPIDController = self._drivingMotor.getPIDController()
     self._drivingMotor.setCANMaxRetries(10)
@@ -41,7 +37,7 @@ class SwerveModule:
     utils.validateParam(self._drivingMotor.setIdleMode(CANSparkBase.IdleMode.kBrake))
     utils.validateParam(self._drivingMotor.burnFlash())
 
-    self._turningMotor = CANSparkMax(turningMotorCANId, CANSparkLowLevel.MotorType.kBrushless)
+    self._turningMotor = CANSparkMax(self._config.turningMotorCANId, CANSparkLowLevel.MotorType.kBrushless)
     self._turningEncoder = self._turningMotor.getAbsoluteEncoder(SparkAbsoluteEncoder.Type.kDutyCycle)
     self._turningPIDController = self._turningMotor.getPIDController()
     self._turningMotor.setCANMaxRetries(10)
@@ -67,7 +63,7 @@ class SwerveModule:
     utils.addRobotPeriodic(self._updateTelemetry)
 
   def setTargetState(self, targetState: SwerveModuleState) -> None:
-    targetState.angle = targetState.angle.__add__(Rotation2d(self._turningOffset))
+    targetState.angle = targetState.angle.__add__(Rotation2d(self._config.turningOffset))
     targetState = SwerveModuleState.optimize(targetState, Rotation2d(self._turningEncoder.getPosition()))
     targetState.speed *= targetState.angle.__sub__(Rotation2d(self._turningEncoder.getPosition())).cos()
     self._drivingPIDController.setReference(targetState.speed, CANSparkBase.ControlType.kVelocity)
@@ -75,10 +71,10 @@ class SwerveModule:
     self._drivingTargetSpeed = targetState.speed
 
   def getState(self) -> SwerveModuleState:
-    return SwerveModuleState(self._drivingEncoder.getVelocity(), Rotation2d(self._turningEncoder.getPosition() - self._turningOffset))
+    return SwerveModuleState(self._drivingEncoder.getVelocity(), Rotation2d(self._turningEncoder.getPosition() - self._config.turningOffset))
   
   def getPosition(self) -> SwerveModulePosition:
-    return SwerveModulePosition(self._drivingEncoder.getPosition(), Rotation2d(self._turningEncoder.getPosition() - self._turningOffset))
+    return SwerveModulePosition(self._drivingEncoder.getPosition(), Rotation2d(self._turningEncoder.getPosition() - self._config.turningOffset))
   
   def setIdleMode(self, motorIdleMode: MotorIdleMode) -> None:
     idleMode = CANSparkBase.IdleMode.kCoast if motorIdleMode == MotorIdleMode.Coast else CANSparkBase.IdleMode.kBrake

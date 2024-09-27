@@ -4,6 +4,7 @@ from commands2 import Command, cmd
 if TYPE_CHECKING: from robot_container import RobotContainer
 from lib import utils
 from lib.classes import ControllerRumbleMode, ControllerRumblePattern
+import constants
 
 class GameCommands:
   def __init__(

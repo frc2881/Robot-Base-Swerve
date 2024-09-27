@@ -7,9 +7,7 @@ from robotpy_apriltag import AprilTagField, AprilTagFieldLayout
 from photonlibpy.photonPoseEstimator import PoseStrategy
 from pathplannerlib.controller import PIDConstants as PathPlannerPIDConstants
 from pathplannerlib.pathfinding import PathConstraints
-from pathplannerlib.path import PathPlannerPath
-from lib.classes import PIDConstants, SwerveModuleMotorControllerType
-from lib.utils import logger
+from lib.classes import PIDConstants, MotorControllerType, ChassisLocation, SwerveModuleConfig
 
 class Subsystems:
   class Drive:
@@ -37,40 +35,28 @@ class Subsystems:
     kPathFollowerRotationPIDConstants = PathPlannerPIDConstants(5.0, 0, 0)
     kPathFindingConstraints = PathConstraints(2.4, 1.6, units.degreesToRadians(360), units.degreesToRadians(720))
 
-    kSwerveModuleFrontLeftDrivingMotorCANId: int = 2
-    kSwerveModuleFrontLeftTurningMotorCANId: int = 3
-    kSwerveModuleFrontRightDrivingMotorCANId: int = 4 
-    kSwerveModuleFrontRightTurningMotorCANId: int = 5 
-    kSwerveModuleRearLeftDrivingMotorCANId: int = 6 
-    kSwerveModuleRearLeftTurningMotorCANId: int = 7 
-    kSwerveModuleRearRightDrivingMotorCANId: int = 8 
-    kSwerveModuleRearRightTurningMotorCANId: int = 9 
-
-    kSwerveModuleFrontLeftTurningOffset: units.radians = -math.pi / 2
-    kSwerveModuleFrontRightTurningOffset: units.radians = 0
-    kSwerveModuleRearLeftTurningOffset: units.radians = math.pi
-    kSwerveModuleRearRightTurningOffset: units.radians = math.pi / 2
-
-    kSwerveModuleFrontLeftTranslation = Translation2d(kWheelBase / 2, kTrackWidth / 2)
-    kSwerveModuleFrontRightTranslation = Translation2d(kWheelBase / 2, -kTrackWidth / 2)
-    kSwerveModuleRearLeftTranslation = Translation2d(-kWheelBase / 2, kTrackWidth / 2)
-    kSwerveModuleRearRightTranslation = Translation2d(-kWheelBase / 2, -kTrackWidth / 2)
+    kSwerveModules = (
+      SwerveModuleConfig(ChassisLocation.FrontLeft, 2, 3, -math.pi / 2, Translation2d(kWheelBase / 2, kTrackWidth / 2)),
+      SwerveModuleConfig(ChassisLocation.FrontRight, 4, 5, 0, Translation2d(kWheelBase / 2, -kTrackWidth / 2)),
+      SwerveModuleConfig(ChassisLocation.RearLeft, 6, 7, math.pi, Translation2d(-kWheelBase / 2, kTrackWidth / 2)),
+      SwerveModuleConfig(ChassisLocation.RearRight, 8, 9, math.pi / 2, Translation2d(-kWheelBase / 2, -kTrackWidth / 2))
+    )
 
     kSwerveDriveKinematics = SwerveDrive4Kinematics(
-      kSwerveModuleFrontLeftTranslation, 
-      kSwerveModuleFrontRightTranslation, 
-      kSwerveModuleRearLeftTranslation, 
-      kSwerveModuleRearRightTranslation
+      kSwerveModules[0].translation,
+      kSwerveModules[1].translation, 
+      kSwerveModules[2].translation,
+      kSwerveModules[3].translation
     )
 
     class SwerveModule:
-      kFreeSpeed: units.revolutions_per_minute = 5676
       kWheelDiameter: units.meters = units.inchesToMeters(3.0)
       kWheelCircumference: units.meters = kWheelDiameter * math.pi
-      kDrivingMotorControllerType = SwerveModuleMotorControllerType.SparkMax
+      kDrivingMotorControllerType = MotorControllerType.SparkMax
+      kDrivingMotorFreeSpeed: units.revolutions_per_minute = 5676
       kDrivingMotorPinionTeeth: int = 14
       kDrivingMotorReduction: float = (45.0 * 20) / (kDrivingMotorPinionTeeth * 15)
-      kDrivingMotorFreeSpeedRps: float = kFreeSpeed / 60
+      kDrivingMotorFreeSpeedRps: float = kDrivingMotorFreeSpeed / 60
       kDriveWheelFreeSpeedRps: float = (kDrivingMotorFreeSpeedRps * kWheelCircumference) / kDrivingMotorReduction 
       kDrivingEncoderPositionConversionFactor: float = (kWheelDiameter * math.pi) / kDrivingMotorReduction
       kDrivingEncoderVelocityConversionFactor: float = ((kWheelDiameter * math.pi) / kDrivingMotorReduction) / 60.0
@@ -94,10 +80,10 @@ class Sensors:
       kSerialPort = SerialPort.Port.kUSB1
 
   class Pose:
-    kPoseSensors: dict[str, Transform3d] = {
-      "Front": Transform3d(
-        Translation3d(units.inchesToMeters(0), units.inchesToMeters(0), units.inchesToMeters(0)),
-        Rotation3d(units.degreesToRadians(0), units.degreesToRadians(0), units.degreesToRadians(0))
+    kPoseSensors: dict[ChassisLocation, Transform3d] = {
+      ChassisLocation.Front: Transform3d(
+        Translation3d(units.inchesToMeters(9.62), units.inchesToMeters(4.12), units.inchesToMeters(21.25)),
+        Rotation3d(units.degreesToRadians(0), units.degreesToRadians(-22.3), units.degreesToRadians(0.0))
       )
     }
     kPoseStrategy = PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR
@@ -108,31 +94,36 @@ class Sensors:
 
   class Camera:
     kStreams: dict[str, str] = {
-      "Front": "http://10.28.81.6:1182/?action=stream",
-      "Driver": "http://10.28.81.6:1182/?action=stream"
+      "Front": "http://10.28.81.6:1184/?action=stream",
+      "Driver": "http://10.28.81.6:1188/?action=stream"
     }
-
-_aprilTagFieldLayout = AprilTagFieldLayout().loadField(AprilTagField.k2024Crescendo)
 
 class Controllers:
   kDriverControllerPort: int = 0
   kOperatorControllerPort: int = 1
   kInputDeadband: units.percent = 0.1
 
+APRIL_TAG_FIELD_LAYOUT = AprilTagFieldLayout().loadField(AprilTagField.k2024Crescendo)
+
 class Game:
+  class Commands:
+    kScoringAlignmentTimeout: units.seconds = 0.8
+    kScoringLaunchTimeout: units.seconds = 1.0
+    kAutoPickupTimeout: units.seconds = 4.0
+
   class Field:
-    kAprilTagFieldLayout = _aprilTagFieldLayout
-    kLength = kAprilTagFieldLayout.getFieldLength()
-    kWidth = kAprilTagFieldLayout.getFieldWidth()
+    kAprilTagFieldLayout = APRIL_TAG_FIELD_LAYOUT
+    kLength = APRIL_TAG_FIELD_LAYOUT.getFieldLength()
+    kWidth = APRIL_TAG_FIELD_LAYOUT.getFieldWidth()
     kBounds = (Translation2d(0, 0), Translation2d(kLength, kWidth))
 
     class Targets:  
-      kBlueTarget = _aprilTagFieldLayout.getTagPose(7) or Pose3d()
-      kRedTarget = _aprilTagFieldLayout.getTagPose(4) or Pose3d()
+      kBlueTarget = APRIL_TAG_FIELD_LAYOUT.getTagPose(7) or Pose3d()
+      kRedTarget = APRIL_TAG_FIELD_LAYOUT.getTagPose(4) or Pose3d()
 
       kTargetTransform = Transform3d(
-        units.inchesToMeters(0),
-        units.inchesToMeters(0),
-        units.inchesToMeters(0),
+        units.inchesToMeters(6.0),
+        units.inchesToMeters(12.0),
+        units.inchesToMeters(24),
         Rotation3d()
       )

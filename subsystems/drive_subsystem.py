@@ -8,7 +8,7 @@ from wpimath.geometry import Rotation2d, Pose2d
 from wpimath.kinematics import ChassisSpeeds, SwerveModulePosition, SwerveModuleState, SwerveDrive4Kinematics
 from commands2 import Subsystem, Command
 from lib import utils, logger
-from lib.classes import SwerveModuleLocation, MotorIdleMode, DriveSpeedMode, DriveOrientation, DriveDriftCorrection, DriveLockState
+from lib.classes import ChassisLocation, MotorIdleMode, DriveSpeedMode, DriveOrientation, DriveDriftCorrection, DriveLockState
 from lib.components.swerve_module import SwerveModule
 import constants
 
@@ -22,36 +22,11 @@ class DriveSubsystem(Subsystem):
     
     self._constants = constants.Subsystems.Drive
 
-    self._swerveModuleFrontLeft = SwerveModule(
-      SwerveModuleLocation.FrontLeft,
-      self._constants.kSwerveModuleFrontLeftDrivingMotorCANId,
-      self._constants.kSwerveModuleFrontLeftTurningMotorCANId,
-      self._constants.kSwerveModuleFrontLeftTurningOffset,
-      self._constants.SwerveModule 
-    )
-
-    self._swerveModuleFrontRight = SwerveModule(
-      SwerveModuleLocation.FrontRight,
-      self._constants.kSwerveModuleFrontRightDrivingMotorCANId,
-      self._constants.kSwerveModuleFrontRightTurningMotorCANId,
-      self._constants.kSwerveModuleFrontRightTurningOffset,
-      self._constants.SwerveModule
-    )
-
-    self._swerveModuleRearLeft = SwerveModule(
-      SwerveModuleLocation.RearLeft,
-      self._constants.kSwerveModuleRearLeftDrivingMotorCANId,
-      self._constants.kSwerveModuleRearLeftTurningMotorCANId,
-      self._constants.kSwerveModuleRearLeftTurningOffset,
-      self._constants.SwerveModule
-    )
-
-    self._swerveModuleRearRight = SwerveModule(
-      SwerveModuleLocation.RearRight,
-      self._constants.kSwerveModuleRearRightDrivingMotorCANId,
-      self._constants.kSwerveModuleRearRightTurningMotorCANId,
-      self._constants.kSwerveModuleRearRightTurningOffset,
-      self._constants.SwerveModule
+    self._swerveDriveModules = (
+      SwerveModule(self._constants.kSwerveModules[0], self._constants.SwerveModule),
+      SwerveModule(self._constants.kSwerveModules[1], self._constants.SwerveModule),
+      SwerveModule(self._constants.kSwerveModules[2], self._constants.SwerveModule),
+      SwerveModule(self._constants.kSwerveModules[3], self._constants.SwerveModule)
     )
 
     self._isDriftCorrectionActive: bool = False
@@ -168,36 +143,35 @@ class DriveSubsystem(Subsystem):
 
   def _setSwerveModuleStates(self, swerveModuleStates: tuple[SwerveModuleState, ...]) -> None:
     SwerveDrive4Kinematics.desaturateWheelSpeeds(swerveModuleStates, self._constants.kTranslationSpeedMax)
-    frontLeft, frontRight, rearLeft, rearRight = swerveModuleStates
-    self._swerveModuleFrontLeft.setTargetState(frontLeft)
-    self._swerveModuleFrontRight.setTargetState(frontRight)
-    self._swerveModuleRearLeft.setTargetState(rearLeft)
-    self._swerveModuleRearRight.setTargetState(rearRight)
+    self._swerveDriveModules[0].setTargetState(swerveModuleStates[0])
+    self._swerveDriveModules[1].setTargetState(swerveModuleStates[1])
+    self._swerveDriveModules[2].setTargetState(swerveModuleStates[2])
+    self._swerveDriveModules[3].setTargetState(swerveModuleStates[3])
 
   def getSpeeds(self) -> ChassisSpeeds:
     return self._constants.kSwerveDriveKinematics.toChassisSpeeds(self._getSwerveModuleStates())
 
   def getSwerveModulePositions(self) -> tuple[SwerveModulePosition, ...]:
     return (
-      self._swerveModuleFrontLeft.getPosition(),
-      self._swerveModuleFrontRight.getPosition(),
-      self._swerveModuleRearLeft.getPosition(),
-      self._swerveModuleRearRight.getPosition()
+      self._swerveDriveModules[0].getPosition(),
+      self._swerveDriveModules[1].getPosition(),
+      self._swerveDriveModules[2].getPosition(),
+      self._swerveDriveModules[3].getPosition()
     )
   
   def _getSwerveModuleStates(self) -> tuple[SwerveModuleState, ...]:
     return (
-      self._swerveModuleFrontLeft.getState(),
-      self._swerveModuleFrontRight.getState(),
-      self._swerveModuleRearLeft.getState(),
-      self._swerveModuleRearRight.getState()
+      self._swerveDriveModules[0].getState(),
+      self._swerveDriveModules[1].getState(),
+      self._swerveDriveModules[2].getState(),
+      self._swerveDriveModules[3].getState()
     )
   
   def _setIdleMode(self, idleMode: MotorIdleMode) -> None:
-    self._swerveModuleFrontLeft.setIdleMode(idleMode)
-    self._swerveModuleFrontRight.setIdleMode(idleMode)
-    self._swerveModuleRearLeft.setIdleMode(idleMode)
-    self._swerveModuleRearRight.setIdleMode(idleMode)
+    self._swerveDriveModules[0].setIdleMode(idleMode)
+    self._swerveDriveModules[1].setIdleMode(idleMode)
+    self._swerveDriveModules[2].setIdleMode(idleMode)
+    self._swerveDriveModules[3].setIdleMode(idleMode)
     SmartDashboard.putString("Robot/Drive/IdleMode/selected", idleMode.name)
 
   def lockCommand(self) -> Command:
@@ -209,10 +183,10 @@ class DriveSubsystem(Subsystem):
   def _setLockState(self, lockState: DriveLockState) -> None:
     self._lockState = lockState
     if lockState == DriveLockState.Locked:
-      self._swerveModuleFrontLeft.setTargetState(SwerveModuleState(0, Rotation2d.fromDegrees(45)))
-      self._swerveModuleFrontRight.setTargetState(SwerveModuleState(0, Rotation2d.fromDegrees(-45)))
-      self._swerveModuleRearLeft.setTargetState(SwerveModuleState(0, Rotation2d.fromDegrees(-45)))
-      self._swerveModuleRearRight.setTargetState(SwerveModuleState(0, Rotation2d.fromDegrees(45)))
+      self._swerveDriveModules[ChassisLocation.FrontLeft.value].setTargetState(SwerveModuleState(0, Rotation2d.fromDegrees(45)))
+      self._swerveDriveModules[ChassisLocation.FrontRight.value].setTargetState(SwerveModuleState(0, Rotation2d.fromDegrees(-45)))
+      self._swerveDriveModules[ChassisLocation.RearLeft.value].setTargetState(SwerveModuleState(0, Rotation2d.fromDegrees(-45)))
+      self._swerveDriveModules[ChassisLocation.RearRight.value].setTargetState(SwerveModuleState(0, Rotation2d.fromDegrees(45)))
 
   def alignToTargetCommand(self, getRobotPose: Callable[[], Pose2d], getTargetHeading: Callable[[], units.degrees]) -> Command:
     return self.run(

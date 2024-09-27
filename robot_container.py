@@ -19,18 +19,20 @@ class RobotContainer:
     self._setupCommands()
     self._setupTriggers()
     self._setupControllers()
+    utils.addRobotPeriodic(lambda: self._updateTelemetry())
 
   def _setupSensors(self) -> None:
     self.gyroSensor = GyroSensor_NAVX2(constants.Sensors.Gyro.NAVX2.kSerialPort)
     self.poseSensors: list[PoseSensor] = []
-    for cameraName, cameraTransform in constants.Sensors.Pose.kPoseSensors.items():
+    for location, transform in constants.Sensors.Pose.kPoseSensors.items():
       self.poseSensors.append(PoseSensor(
-        cameraName,
-        cameraTransform,
+        location.name,
+        transform,
         constants.Sensors.Pose.kPoseStrategy,
         constants.Sensors.Pose.kFallbackPoseStrategy,
         constants.Game.Field.kAprilTagFieldLayout
       ))
+    SmartDashboard.putString("Robot/Sensor/Camera/Streams", utils.toJson(constants.Sensors.Camera.kStreams))
     
   def _setupSubsystems(self) -> None:
     self.driveSubsystem = DriveSubsystem(
@@ -59,7 +61,6 @@ class RobotContainer:
     
   def _setupCommands(self) -> None:
     self.gameCommands = GameCommands(self)
-
     self._autoCommand = cmd.none()
     self._autoChooser = SendableChooser()
     self._autoChooser.setDefaultOption("None", cmd.none)
@@ -81,9 +82,6 @@ class RobotContainer:
     )
     DriverStation.silenceJoystickConnectionWarning(True)
 
-    # ###############################################################
-    # ########################## DRIVER #############################
-    # ###############################################################
     self.driveSubsystem.setDefaultCommand(
       self.driveSubsystem.driveCommand(
         lambda: self.driverController.getLeftY(),
@@ -92,54 +90,59 @@ class RobotContainer:
     ))
     self.driverController.rightStick().whileTrue(self.gameCommands.alignRobotToTargetCommand())
     self.driverController.leftStick().whileTrue(self.driveSubsystem.lockCommand())
-    self.driverController.rightTrigger().whileTrue(cmd.none())
-    self.driverController.rightBumper().whileTrue(cmd.none())
-    self.driverController.leftTrigger().whileTrue(cmd.none())
-    self.driverController.leftBumper().whileTrue(cmd.none())
-    self.driverController.povUp().whileTrue(cmd.none())
-    self.driverController.povDown().whileTrue(cmd.none())
-    self.driverController.povLeft().whileTrue(cmd.none())
-    self.driverController.povRight().whileTrue(cmd.none())
-    self.driverController.a().whileTrue(cmd.none())
-    self.driverController.b().whileTrue(cmd.none())
-    self.driverController.y().whileTrue(cmd.none())
-    self.driverController.x().whileTrue(cmd.none())
+    # self.driverController.rightTrigger().whileTrue(cmd.none())
+    # self.driverController.rightBumper().whileTrue(cmd.none())
+    # self.driverController.leftTrigger().whileTrue(cmd.none())
+    # self.driverController.leftBumper().whileTrue(cmd.none())
+    # self.driverController.povUp().whileTrue(cmd.none())
+    # self.driverController.povDown().whileTrue(cmd.none())
+    # self.driverController.povLeft().whileTrue(cmd.none())
+    # self.driverController.povRight().whileTrue(cmd.none())
+    # self.driverController.a().whileTrue(cmd.none())
+    # self.driverController.b().whileTrue(cmd.none())
+    # self.driverController.y().whileTrue(cmd.none())
+    # self.driverController.x().whileTrue(cmd.none())
     self.driverController.start().onTrue(self.gyroSensor.calibrateCommand())
     self.driverController.back().onTrue(self.gyroSensor.resetCommand())
 
-    # ###############################################################
-    # ########################## OPERATOR ###########################
-    # ###############################################################
-    self.operatorController.rightTrigger().whileTrue(cmd.none())
-    self.operatorController.rightBumper().whileTrue(cmd.none())
-    self.operatorController.leftTrigger().whileTrue(cmd.none())
-    self.operatorController.leftBumper().whileTrue(cmd.none())
-    self.operatorController.povUp().whileTrue(cmd.none())
-    self.operatorController.povDown().whileTrue(cmd.none())
-    self.operatorController.povLeft().whileTrue(cmd.none())
-    self.operatorController.povRight().whileTrue(cmd.none())
-    self.operatorController.a().whileTrue(cmd.none())
-    self.operatorController.b().whileTrue(cmd.none())
-    self.operatorController.y().whileTrue(cmd.none())
-    self.operatorController.x().whileTrue(cmd.none())
-    self.operatorController.start().whileTrue(cmd.none())
-    self.operatorController.back().whileTrue(cmd.none())
+    # self.operatorController.rightTrigger().whileTrue(cmd.none())
+    # self.operatorController.rightBumper().whileTrue(cmd.none())
+    # self.operatorController.leftTrigger().whileTrue(cmd.none())
+    # self.operatorController.leftBumper().whileTrue(cmd.none())
+    # self.operatorController.povUp().whileTrue(cmd.none())
+    # self.operatorController.povDown().whileTrue(cmd.none())
+    # self.operatorController.povLeft().whileTrue(cmd.none())
+    # self.operatorController.povRight().whileTrue(cmd.none())
+    # self.operatorController.a().whileTrue(cmd.none())
+    # self.operatorController.b().whileTrue(cmd.none())
+    # self.operatorController.y().whileTrue(cmd.none())
+    # self.operatorController.x().whileTrue(cmd.none())
+    # self.operatorController.start().whileTrue(cmd.none())
+    # self.operatorController.back().whileTrue(cmd.none())
+
+  def _robotHasInitialZeroResets(self) -> bool:
+    return utils.isCompetitionMode() or True
+
+  def _updateTelemetry(self) -> None:
+    SmartDashboard.putBoolean("Robot/HasInitialZeroResets", self._robotHasInitialZeroResets())
+
+  def addAutoOption(self, name: str, command: object) -> None:
+    self._autoChooser.addOption(name, command)
 
   def getAutoCommand(self) -> Command:
     return self._autoCommand
-  
-  def addAutoCommand(self, name: str, command: object) -> None:
-    self._autoChooser.addOption(name, command)
-
-  def resetRobot(self) -> None:
-    self.driveSubsystem.reset()
 
   def autoInit(self) -> None:
     self.resetRobot()
 
   def teleopInit(self) -> None:
     self.resetRobot()
-    self.gyroSensor.alignRobotToField(self.localizationSubsystem.getPose())
+    self.gyroSensor.resetRobotToField(self.localizationSubsystem.getPose())
 
   def testInit(self) -> None:
     self.resetRobot()
+
+  def resetRobot(self) -> None:
+    self.driveSubsystem.reset()
+
+
