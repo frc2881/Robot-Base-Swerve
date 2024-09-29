@@ -35,6 +35,7 @@ class LocalizationSubsystem(Subsystem):
     self._targetPose = Pose3d()
     self._targetInfo = TargetInfo(0, 0, 0)
     self._currentAlliance = None
+    self._visionActive = False
 
     SmartDashboard.putNumber("Robot/Game/Field/Length", constants.Game.Field.kLength)
     SmartDashboard.putNumber("Robot/Game/Field/Width", constants.Game.Field.kWidth)
@@ -60,12 +61,14 @@ class LocalizationSubsystem(Subsystem):
             self._poseEstimator.addVisionMeasurement(
               pose,
               estimatedRobotPose.timestampSeconds,
-              constants.Sensors.Pose.kVisionMultiTagStandardDeviations
+              constants.Sensors.Pose.kMultiTagStandardDeviations
             )
+            self._visionActive = True
           else:
             for target in estimatedRobotPose.targetsUsed:
-              if utils.isValueInRange(target.getPoseAmbiguity(), 0, constants.Sensors.Pose.kVisionMaxPoseAmbiguity):
-                self._poseEstimator.addVisionMeasurement(pose, estimatedRobotPose.timestampSeconds, constants.Sensors.Pose.kVisionSingleTagStandardDeviations)
+              if utils.isValueInRange(target.getPoseAmbiguity(), 0, constants.Sensors.Pose.kMaxPoseAmbiguity):
+                self._poseEstimator.addVisionMeasurement(pose, estimatedRobotPose.timestampSeconds, constants.Sensors.Pose.kSingleTagStandardDeviations)
+                self._visionActive = True
                 break
     pose = self._poseEstimator.getEstimatedPosition()
     if utils.isPoseInBounds(pose, constants.Game.Field.kBounds):
@@ -75,9 +78,8 @@ class LocalizationSubsystem(Subsystem):
     return self._pose
 
   def resetPose(self, pose: Pose2d) -> None:
-    # NO-OP as current pose is always maintained by pose sensors in the configuration for this robot
-    # self._poseEstimator.resetPosition(self._getGyroRotation(), self._getSwerveModulePositions(), pose)
-    pass   
+    if not self._visionActive:
+      self._poseEstimator.resetPosition(self._getGyroRotation(), self._getSwerveModulePositions(), pose) 
 
   def hasVisionTargets(self) -> bool:
     for poseSensor in self._poseSensors:
