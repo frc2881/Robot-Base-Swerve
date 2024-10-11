@@ -11,8 +11,8 @@ from lib.classes import PIDConstants, MotorControllerType, ChassisLocation, Swer
 
 class Subsystems:
   class Drive:
-    kTrackWidth: units.meters = units.inchesToMeters(21.5)
-    kWheelBase: units.meters = units.inchesToMeters(24.5)
+    kTrackWidth: units.meters = units.inchesToMeters(24.5)
+    kWheelBase: units.meters = units.inchesToMeters(21.5)
     kDriveBaseRadius: units.meters = Translation2d().distance(Translation2d(kWheelBase / 2, kTrackWidth / 2))
 
     kTranslationSpeedMax: units.meters_per_second = 4.8
