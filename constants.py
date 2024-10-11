@@ -88,9 +88,9 @@ class Sensors:
     }
     kPoseStrategy = PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR
     kFallbackPoseStrategy = PoseStrategy.LOWEST_AMBIGUITY
-    kVisionSingleTagStandardDeviations: tuple[float, ...] = [1.0, 1.0, 2.0]
-    kVisionMultiTagStandardDeviations: tuple[float, ...] = [0.5, 0.5, 1.0]
-    kVisionMaxPoseAmbiguity: units.percent = 0.2
+    kSingleTagStandardDeviations: tuple[float, ...] = [1.0, 1.0, 2.0]
+    kMultiTagStandardDeviations: tuple[float, ...] = [0.5, 0.5, 1.0]
+    kMaxPoseAmbiguity: units.percent = 0.2
 
   class Camera:
     kStreams: dict[str, str] = {
