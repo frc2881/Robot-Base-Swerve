@@ -8,7 +8,7 @@ from wpimath.geometry import Rotation2d, Pose2d
 from wpimath.kinematics import ChassisSpeeds, SwerveModulePosition, SwerveModuleState, SwerveDrive4Kinematics
 from commands2 import Subsystem, Command
 from lib import utils, logger
-from lib.classes import ChassisLocation, MotorIdleMode, DriveSpeedMode, DriveOrientation, DriveDriftCorrection, DriveLockState
+from lib.classes import ChassisLocation, MotorIdleMode, SpeedMode, DriveOrientation, DriveDriftCorrection, DriveLockState
 from lib.components.swerve_module import SwerveModule
 import constants
 
@@ -53,14 +53,14 @@ class DriveSubsystem(Subsystem):
       self._constants.kTargetAlignmentThetaControllerVelocityTolerance
     )
 
-    self._inputXFilter = SlewRateLimiter(self._constants.kInputRateLimit)
-    self._inputYFilter = SlewRateLimiter(self._constants.kInputRateLimit)
-    self._inputRotationFilter = SlewRateLimiter(self._constants.kInputRateLimit)
+    self._inputXFilter = SlewRateLimiter(self._constants.kInputRateLimitDemo)
+    self._inputYFilter = SlewRateLimiter(self._constants.kInputRateLimitDemo)
+    self._inputRotationFilter = SlewRateLimiter(self._constants.kInputRateLimitDemo)
 
-    self._speedMode: DriveSpeedMode = DriveSpeedMode.Competition
+    self._speedMode: SpeedMode = SpeedMode.Competition
     speedModeChooser = SendableChooser()
-    speedModeChooser.setDefaultOption(DriveSpeedMode.Competition.name, DriveSpeedMode.Competition)
-    speedModeChooser.addOption(DriveSpeedMode.Training.name, DriveSpeedMode.Training)
+    speedModeChooser.setDefaultOption(SpeedMode.Competition.name, SpeedMode.Competition)
+    speedModeChooser.addOption(SpeedMode.Demo.name, SpeedMode.Demo)
     speedModeChooser.onChange(lambda speedMode: setattr(self, "_speedMode", speedMode))
     SmartDashboard.putData("Robot/Drive/SpeedMode", speedModeChooser)
 
@@ -120,10 +120,10 @@ class DriveSubsystem(Subsystem):
         if self._driftCorrectionThetaController.atSetpoint():
           inputRotation = 0
 
-    if self._speedMode == DriveSpeedMode.Training:
-      inputX = self._inputXFilter.calculate(inputX * self._constants.kInputLimit)
-      inputY = self._inputYFilter.calculate(inputY * self._constants.kInputLimit)
-      inputRotation = self._inputRotationFilter.calculate(inputRotation * self._constants.kInputLimit)
+    if self._speedMode == SpeedMode.Demo:
+      inputX = self._inputXFilter.calculate(inputX * self._constants.kInputLimitDemo)
+      inputY = self._inputYFilter.calculate(inputY * self._constants.kInputLimitDemo)
+      inputRotation = self._inputRotationFilter.calculate(inputRotation * self._constants.kInputLimitDemo)
 
     speedX: units.meters_per_second = inputX * self._constants.kTranslationSpeedMax
     speedY: units.meters_per_second = inputY * self._constants.kTranslationSpeedMax
