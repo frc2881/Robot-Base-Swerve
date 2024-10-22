@@ -1,10 +1,14 @@
 from typing import TYPE_CHECKING
+from enum import Enum, auto
 from commands2 import Command, cmd
 from pathplannerlib.auto import AutoBuilder
 from pathplannerlib.path import PathPlannerPath
 if TYPE_CHECKING: from robot_container import RobotContainer
-from classes import AutoPath
 import constants
+
+class AutoPath(Enum):
+  Move0 = auto()
+  Move2 = auto()
 
 class AutoCommands:
   def __init__(
