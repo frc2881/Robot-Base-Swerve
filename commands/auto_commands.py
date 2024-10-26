@@ -36,11 +36,11 @@ class AutoCommands:
   def auto_0_(self) -> Command:
     return cmd.sequence(
       self._move(AutoPath.Move0)
-    ).withName("AutoCommands:[0]_")
+    ).withName("AutoCommands:[0] 0_")
 
   def auto_2_(self) -> Command:
     return cmd.sequence(
       self._move(AutoPath.Move2),
       self._alignToTarget()
-    ).withName("AutoCommands:[2]_")
+    ).withName("AutoCommands:[2] 2_")
   
