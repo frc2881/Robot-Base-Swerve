@@ -43,6 +43,9 @@ class Robot(TimedCommandRobot):
   def autonomousPeriodic(self) -> None:
     pass
 
+  def autonomousExit(self):
+    self._robotContainer.autoExit()
+
   def teleopInit(self) -> None:
     logger.mode(RobotMode.Teleop)
     if self._autoCommand is not None:

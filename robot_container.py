@@ -135,9 +135,11 @@ class RobotContainer:
   def autoInit(self) -> None:
     self.resetRobot()
 
+  def autoExit(self) -> None: 
+    self.gyroSensor.resetRobotToField(self.localizationSubsystem.getPose())
+    
   def teleopInit(self) -> None:
     self.resetRobot()
-    self.gyroSensor.resetRobotToField(self.localizationSubsystem.getPose())
 
   def testInit(self) -> None:
     self.resetRobot()
