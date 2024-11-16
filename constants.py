@@ -7,7 +7,10 @@ from robotpy_apriltag import AprilTagField, AprilTagFieldLayout
 from photonlibpy.photonPoseEstimator import PoseStrategy
 from pathplannerlib.controller import PIDConstants as PathPlannerPIDConstants
 from pathplannerlib.pathfinding import PathConstraints
+from rev import ClosedLoopConfig, SparkBaseConfig, SparkFlexConfig, SparkMaxConfig, ClosedLoopSlot, AbsoluteEncoderConfig, EncoderConfig
 from lib.classes import PIDConstants, MotorControllerType, ChassisLocation, SwerveModuleConfig
+from typing_extensions import Self
+
 
 class Subsystems:
   class Drive:
@@ -16,7 +19,7 @@ class Subsystems:
     kDriveBaseRadius: units.meters = Translation2d().distance(Translation2d(kWheelBase / 2, kTrackWidth / 2))
 
     kTranslationSpeedMax: units.meters_per_second = 4.8
-    kRotationSpeedMax: units.radians_per_second = 4 * math.pi # type: ignore
+    kRotationSpeedMax: units.radians_per_second = 4 * math.pi  # type: ignore
 
     kInputLimitDemo: units.percent = 0.5
     kInputRateLimitDemo: units.percent = 0.33
@@ -44,7 +47,7 @@ class Subsystems:
 
     kSwerveDriveKinematics = SwerveDrive4Kinematics(
       kSwerveModules[0].translation,
-      kSwerveModules[1].translation, 
+      kSwerveModules[1].translation,
       kSwerveModules[2].translation,
       kSwerveModules[3].translation
     )
@@ -60,7 +63,7 @@ class Subsystems:
       kDrivingMotorPinionTeeth: int = 14
       kDrivingMotorReduction: float = (kWheelBevelGearTeeth * kWheelSpurGearTeeth) / (kDrivingMotorPinionTeeth * kWheelBevelPinionTeeth)
       kDrivingMotorFreeSpeedRps: float = kDrivingMotorFreeSpeed / 60
-      kDriveWheelFreeSpeedRps: float = (kDrivingMotorFreeSpeedRps * kWheelCircumference) / kDrivingMotorReduction 
+      kDriveWheelFreeSpeedRps: float = (kDrivingMotorFreeSpeedRps * kWheelCircumference) / kDrivingMotorReduction
       kDrivingEncoderPositionConversionFactor: float = (kWheelDiameter * math.pi) / kDrivingMotorReduction
       kDrivingEncoderVelocityConversionFactor: float = ((kWheelDiameter * math.pi) / kDrivingMotorReduction) / 60.0
       kTurningEncoderInverted: bool = True
@@ -76,6 +79,40 @@ class Subsystems:
       kTurningMotorMaxReverseOutput: units.percent = -1.0
       kTurningMotorMaxForwardOutput: units.percent = 1.0
       kTurningMotorPIDConstants = PIDConstants(1, 0, 0, 0)
+
+      kDrivingMotorConfig = SparkFlexConfig() \
+        .smartCurrentLimit(kDrivingMotorCurrentLimit) \
+        .setIdleMode(SparkBaseConfig.IdleMode.kBrake)
+      # Bug in current version of rev py libraries - we have to explicitly call the base class method.
+      SparkBaseConfig.apply(kDrivingMotorConfig, EncoderConfig() \
+                            .positionConversionFactor(kDrivingEncoderPositionConversionFactor) \
+                            .velocityConversionFactor(kDrivingEncoderVelocityConversionFactor))
+      SparkBaseConfig.apply(kDrivingMotorConfig, ClosedLoopConfig() \
+                            .outputRange(kDrivingMotorMaxReverseOutput, kDrivingMotorMaxForwardOutput) \
+                            .setFeedbackSensor(ClosedLoopConfig.FeedbackSensor.kPrimaryEncoder) \
+                            .pidf(kDrivingMotorPIDConstants.P,
+                                  kDrivingMotorPIDConstants.I,
+                                  kDrivingMotorPIDConstants.D,
+                                  kDrivingMotorPIDConstants.FF))
+
+      kTurningMotorConfig = SparkMaxConfig() \
+        .smartCurrentLimit(kTurningMotorCurrentLimit) \
+        .setIdleMode(SparkBaseConfig.IdleMode.kBrake) \
+        .inverted(kTurningEncoderInverted)
+      # Bug in current version of rev py libraries - we have to explicitly call SparkBaseConfig.apply
+      SparkBaseConfig.apply(kTurningMotorConfig, AbsoluteEncoderConfig() \
+                            .positionConversionFactor(kTurningEncoderPositionConversionFactor)
+                            .velocityConversionFactor(kTurningEncoderVelocityConversionFactor))
+      SparkBaseConfig.apply(kTurningMotorConfig, ClosedLoopConfig() \
+                            .setFeedbackSensor(ClosedLoopConfig.FeedbackSensor.kAbsoluteEncoder) \
+                            .pidf(kTurningMotorPIDConstants.P,
+                                  kTurningMotorPIDConstants.I,
+                                  kTurningMotorPIDConstants.D,
+                                  kTurningMotorPIDConstants.FF) \
+                            .outputRange(kTurningMotorMaxReverseOutput, kTurningMotorMaxForwardOutput)
+                            .positionWrappingInputRange(kTurningEncoderPositionPIDMinInput, kTurningEncoderPositionPIDMaxInput)
+                            .positionWrappingEnabled(True))
+
 
 class Sensors:
   class Gyro:
@@ -101,12 +138,15 @@ class Sensors:
       # "Driver": "http://10.28.81.6:1188/?action=stream"
     }
 
+
 class Controllers:
   kDriverControllerPort: int = 0
   kOperatorControllerPort: int = 1
   kInputDeadband: units.percent = 0.1
 
+
 APRIL_TAG_FIELD_LAYOUT = AprilTagFieldLayout().loadField(AprilTagField.k2024Crescendo)
+
 
 class Game:
   class Commands:
@@ -120,7 +160,7 @@ class Game:
     kWidth = APRIL_TAG_FIELD_LAYOUT.getFieldWidth()
     kBounds = (Translation2d(0, 0), Translation2d(kLength, kWidth))
 
-    class Targets:  
+    class Targets:
       kBlueTarget = APRIL_TAG_FIELD_LAYOUT.getTagPose(7) or Pose3d()
       kRedTarget = APRIL_TAG_FIELD_LAYOUT.getTagPose(4) or Pose3d()
 
