@@ -3,5 +3,5 @@
   <component name="Black">
     <option name="sdkName" value="Python 3.12 (2024-Robot-Offseason)" />
   </component>
-  <component name="ProjectRootManager" version="2" project-jdk-name="Python 3.12 (2024-Robot-Offseason)" project-jdk-type="Python SDK" />
+  <component name="ProjectRootManager" version="2" project-jdk-name="Python 3.12 (Robot-Base-Swerve)" project-jdk-type="Python SDK" />
 </project>
