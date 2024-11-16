@@ -14,7 +14,7 @@
     <option name="ADD_SOURCE_ROOTS" value="true" />
     <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
     <option name="SCRIPT_NAME" value="pip" />
-    <option name="PARAMETERS" value="install --upgrade robotpy certifi" />
+    <option name="PARAMETERS" value="install --upgrade pip robotpy==2025.0.0b1 certifi" />
     <option name="SHOW_COMMAND_LINE" value="false" />
     <option name="EMULATE_TERMINAL" value="false" />
     <option name="MODULE_MODE" value="true" />
