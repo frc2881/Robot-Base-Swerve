@@ -3,7 +3,7 @@ from wpimath import units
 from wpimath.geometry import Rotation2d
 from wpimath.kinematics import SwerveModulePosition, SwerveModuleState
 from wpilib import SmartDashboard
-from rev import SparkBase, SparkLowLevel, SparkFlex, SparkMax, SparkAbsoluteEncoder
+from rev import SparkBase, SparkLowLevel, SparkFlex, SparkMax, SparkAbsoluteEncoder, SparkFlexConfig, SparkMaxConfig, SparkBaseConfig
 from lib.classes import SwerveModuleConfig, MotorIdleMode, MotorControllerType
 from lib import utils, logger
 
@@ -32,6 +32,7 @@ class SwerveModule:
       SparkBase.ResetMode.kResetSafeParameters,  # Replaces restoreFactoryDefaults
       SparkBase.PersistMode.kPersistParameters  # Replaces burnFlash
     )
+    self._drivingPIDController = self._drivingMotor.getClosedLoopController()
 
     self._turningMotor = SparkMax(self._config.turningMotorCANId, SparkLowLevel.MotorType.kBrushless)
     self._turningEncoder = self._turningMotor.getAbsoluteEncoder()
@@ -41,6 +42,7 @@ class SwerveModule:
       SparkBase.ResetMode.kResetSafeParameters,  # Replaces restoreFactoryDefaults
       SparkBase.PersistMode.kPersistParameters  # Replaces burnFlash
     )
+    self._turningPIDController = self._turningMotor.getClosedLoopController()
 
     self._drivingEncoder.setPosition(0)
 
@@ -48,7 +50,7 @@ class SwerveModule:
 
   def setTargetState(self, targetState: SwerveModuleState) -> None:
     targetState.angle = targetState.angle.__add__(Rotation2d(self._config.turningOffset))
-    targetState = SwerveModuleState.optimize(targetState, Rotation2d(self._turningEncoder.getPosition()))
+    targetState.optimize(Rotation2d(self._turningEncoder.getPosition()))
     targetState.speed *= targetState.angle.__sub__(Rotation2d(self._turningEncoder.getPosition())).cos()
     self._drivingPIDController.setReference(targetState.speed, SparkBase.ControlType.kVelocity)
     self._turningPIDController.setReference(targetState.angle.radians(), SparkBase.ControlType.kPosition)
@@ -62,10 +64,12 @@ class SwerveModule:
 
   def setIdleMode(self, motorIdleMode: MotorIdleMode) -> None:
     idleMode = SparkBaseConfig.IdleMode.kCoast if motorIdleMode == MotorIdleMode.Coast else SparkBaseConfig.IdleMode.kBrake
-    config = SparkBaseConfig()
-    config.setIdleMode(idleMode)
-    self._drivingMotor.configure(idleMode, SparkBase.ResetMode.kNoResetSafeParameters, SparkBase.PersistMode.kNoPersistParameters)
-    self._turningMotor.configure(idleMode, SparkBase.ResetMode.kNoResetSafeParameters, SparkBase.PersistMode.kNoPersistParameters)
+    self._drivingMotor.configure(SparkFlexConfig().setIdleMode(idleMode), 
+                                 SparkBase.ResetMode.kNoResetSafeParameters,
+                                 SparkBase.PersistMode.kNoPersistParameters)
+    self._turningMotor.configure(SparkMaxConfig().setIdleMode(idleMode), 
+                                 SparkBase.ResetMode.kNoResetSafeParameters,
+                                 SparkBase.PersistMode.kNoPersistParameters)
 
   def _updateTelemetry(self) -> None:
     SmartDashboard.putNumber(f'{self._baseKey}/Driving/Speed/Target', self._drivingTargetSpeed)
