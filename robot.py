@@ -12,7 +12,10 @@ class Robot(TimedCommandRobot):
   def getInstance() -> TimedCommandRobot:
     return Robot._instance
 
-  def robotInit(self) -> None:
+  def __init__(
+    self
+  ) -> None:
+    TimedCommandRobot.__init__(self)
     Robot._instance = self
     logger.start()
     telemetry.start()
