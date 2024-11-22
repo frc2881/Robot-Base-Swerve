@@ -22,7 +22,7 @@
     {
       "label": "RobotPy: Step 1 - Install / Upgrade RobotPy",
       "type": "shell",
-      "command": "python -m pip install --upgrade robotpy certifi", 
+      "command": "python -m pip install --upgrade robotpy==2025.0.0b1.post1 certifi", 
       "problemMatcher": []
     }
   ]
