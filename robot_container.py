@@ -12,7 +12,6 @@ from commands.auto_commands import AutoCommands
 from commands.game_commands import GameCommands
 from subsystems.drive_subsystem import DriveSubsystem
 from subsystems.localization_subsystem import LocalizationSubsystem
-from wpimath.system.plant import DCMotor
 import constants
 
 class RobotContainer:
@@ -46,42 +45,30 @@ class RobotContainer:
       lambda: self.gyroSensor.getRotation(),
       lambda: self.driveSubsystem.getSwerveModulePositions()
     )
-    moduleConfig = ModuleConfig(
-      constants.Subsystems.Drive.kDriveBaseRadius,
-      constants.Subsystems.Drive.kTranslationSpeedMax,
-      1.0,
-      DCMotor.NEO(1),
-      constants.Subsystems.Drive.SwerveModule.kDrivingMotorCurrentLimit,
-      1      
-    )
-    
-    robotConfig = RobotConfig(
-      46.0,
-      1.0,
-      moduleConfig,
-      constants.Subsystems.Drive.kTrackWidth,
-      constants.Subsystems.Drive.kWheelBase
-    )
-    
-    controller = PPHolonomicDriveController(
-      constants.Subsystems.Drive.kPathFollowerTranslationPIDConstants,
-      constants.Subsystems.Drive.kPathFollowerRotationPIDConstants
-    )
-    # HolonomicPathFollowerConfig(
-    #   constants.Subsystems.Drive.kPathFollowerTranslationPIDConstants,
-    #   constants.Subsystems.Drive.kPathFollowerRotationPIDConstants,
-    #   constants.Subsystems.Drive.kTranslationSpeedMax, 
-    #   constants.Subsystems.Drive.kDriveBaseRadius, 
-    #   ReplanningConfig(
-    # ),
     
     AutoBuilder.configure(
       lambda: self.localizationSubsystem.getPose(), 
       lambda pose: self.localizationSubsystem.resetPose(pose), 
       lambda: self.driveSubsystem.getSpeeds(), 
       lambda chassisSpeeds: self.driveSubsystem.drive(chassisSpeeds), 
-      controller,
-      robotConfig,
+      PPHolonomicDriveController(
+        constants.Subsystems.Drive.kPathFollowerTranslationPIDConstants,
+        constants.Subsystems.Drive.kPathFollowerRotationPIDConstants
+      ),
+      RobotConfig(
+        constants.Subsystems.Drive.kRobotMass,
+        constants.Subsystems.Drive.kRobotMOI,
+        ModuleConfig(
+          constants.Subsystems.Drive.kDriveBaseRadius,
+          constants.Subsystems.Drive.kTranslationSpeedMax,
+          constants.Subsystems.Drive.SwerveModule.kWheelCOF,
+          constants.Subsystems.Drive.SwerveModule.kDrivingMotorType,
+          constants.Subsystems.Drive.SwerveModule.kDrivingMotorCurrentLimit,
+          constants.Subsystems.Drive.SwerveModule.kDrivingMotorCount    
+        ),
+        constants.Subsystems.Drive.kTrackWidth,
+        constants.Subsystems.Drive.kWheelBase
+      ),
       lambda: utils.getAlliance() == Alliance.Red,
       self.driveSubsystem
     )
