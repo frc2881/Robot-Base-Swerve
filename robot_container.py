@@ -24,7 +24,7 @@ class RobotContainer:
     utils.addRobotPeriodic(lambda: self._updateTelemetry())
 
   def _setupSensors(self) -> None:
-    self.gyroSensor = GyroSensor_NAVX2(constants.Sensors.Gyro.NAVX2.kSerialPort)
+    self.gyroSensor = GyroSensor_NAVX2(constants.Sensors.Gyro.NAVX2.kComType)
     self.poseSensors: list[PoseSensor] = []
     for location, transform in constants.Sensors.Pose.kPoseSensors.items():
       self.poseSensors.append(PoseSensor(

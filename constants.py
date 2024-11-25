@@ -5,6 +5,7 @@ from wpimath.geometry import Transform3d, Translation3d, Rotation3d, Pose3d, Tra
 from wpimath.kinematics import SwerveDrive4Kinematics
 from wpimath.system.plant import DCMotor
 from robotpy_apriltag import AprilTagField, AprilTagFieldLayout
+import navx
 from photonlibpy.photonPoseEstimator import PoseStrategy
 from pathplannerlib.controller import PIDConstants as PathPlannerPIDConstants
 from pathplannerlib.pathfinding import PathConstraints
@@ -86,7 +87,7 @@ class Subsystems:
 class Sensors:
   class Gyro:
     class NAVX2:
-      kSerialPort = SerialPort.Port.kUSB1
+      kComType = navx.AHRS.NavXComType.kUSB1
 
   class Pose:
     kPoseSensors: dict[ChassisLocation, Transform3d] = {

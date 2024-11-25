@@ -8,9 +8,9 @@ from lib import utils
 class GyroSensor_NAVX2():
   def __init__(
       self,
-      serialPort: SerialPort.Port
+      comType: navx.AHRS.NavXComType
     ) -> None:
-    self._gyro = navx.AHRS(serialPort)
+    self._gyro = navx.AHRS(comType)
 
     self._baseKey = f'Robot/Sensor/Gyro'
 
