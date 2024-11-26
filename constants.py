@@ -1,5 +1,4 @@
 import math
-from wpilib import SerialPort
 from wpimath import units
 from wpimath.geometry import Transform3d, Translation3d, Rotation3d, Pose3d, Translation2d
 from wpimath.kinematics import SwerveDrive4Kinematics
@@ -16,8 +15,8 @@ class Subsystems:
     kTrackWidth: units.meters = units.inchesToMeters(24.5)
     kWheelBase: units.meters = units.inchesToMeters(21.5)
     kDriveBaseRadius: units.meters = Translation2d().distance(Translation2d(kWheelBase / 2, kTrackWidth / 2))
-    kRobotMass: units.kilograms = 46.0
-    kRobotMOI: float = 1.0
+    kRobotMass: units.kilograms = 46.0 # TODO: calculate correct constant value
+    kRobotMOI: float = 1.0 # TODO: calculate correct constant value
 
     kTranslationSpeedMax: units.meters_per_second = 4.8
     kRotationSpeedMax: units.radians_per_second = 4 * math.pi  # type: ignore
@@ -59,7 +58,7 @@ class Subsystems:
       kWheelBevelGearTeeth: int = 45
       kWheelSpurGearTeeth: int = 22
       kWheelBevelPinionTeeth: int = 15
-      kWheelCOF: float = 1.0
+      kWheelCOF: float = 1.0 # TODO: calculate correct constant value
       kDrivingMotorCount: int = 1
       kDrivingMotorType = DCMotor.NEO(kDrivingMotorCount)
       kDrivingMotorControllerType = MotorControllerType.SparkMax
