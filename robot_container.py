@@ -25,6 +25,7 @@ class RobotContainer:
 
   def _setupSensors(self) -> None:
     self.gyroSensor = GyroSensor_NAVX2(constants.Sensors.Gyro.NAVX2.kComType)
+
     self.poseSensors: list[PoseSensor] = []
     for location, transform in constants.Sensors.Pose.kPoseSensors.items():
       self.poseSensors.append(PoseSensor(
@@ -34,12 +35,14 @@ class RobotContainer:
         constants.Sensors.Pose.kFallbackPoseStrategy,
         constants.Game.Field.kAprilTagFieldLayout
       ))
+
     SmartDashboard.putString("Robot/Sensor/Camera/Streams", utils.toJson(constants.Sensors.Camera.kStreams))
     
   def _setupSubsystems(self) -> None:
     self.driveSubsystem = DriveSubsystem(
       lambda: self.gyroSensor.getHeading()
     )
+
     self.localizationSubsystem = LocalizationSubsystem(
       self.poseSensors,
       lambda: self.gyroSensor.getRotation(),

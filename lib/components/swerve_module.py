@@ -3,7 +3,7 @@ from wpimath import units
 from wpimath.geometry import Rotation2d
 from wpimath.kinematics import SwerveModulePosition, SwerveModuleState
 from wpilib import SmartDashboard
-from rev import SparkBase, SparkLowLevel, SparkFlex, SparkMax, SparkAbsoluteEncoder, SparkFlexConfig, SparkMaxConfig, SparkBaseConfig, ClosedLoopConfig, EncoderConfig, AbsoluteEncoderConfig
+from rev import SparkBase, SparkBaseConfig, SparkLowLevel, SparkFlex, SparkMax, ClosedLoopConfig
 from lib.classes import SwerveModuleConfig, MotorIdleMode, MotorControllerType
 from lib import utils, logger
 if TYPE_CHECKING: import constants
@@ -24,10 +24,10 @@ class SwerveModule:
       self._drivingMotor = SparkMax(self._config.drivingMotorCANId, SparkLowLevel.MotorType.kBrushless)
     else: 
       self._drivingMotor = SparkFlex(self._config.drivingMotorCANId, SparkLowLevel.MotorType.kBrushless)
-    self._drivingMotor.setCANMaxRetries(10)
     self._drivingMotorConfig = SparkBaseConfig() \
       .setIdleMode(SparkBaseConfig.IdleMode.kBrake) \
-      .smartCurrentLimit(self._constants.kDrivingMotorCurrentLimit)
+      .smartCurrentLimit(self._constants.kDrivingMotorCurrentLimit) \
+      .secondaryCurrentLimit(self._constants.kDrivingMotorCurrentLimit)
     self._drivingMotorConfig.encoder \
       .positionConversionFactor(self._constants.kDrivingEncoderPositionConversionFactor) \
       .velocityConversionFactor(self._constants.kDrivingEncoderVelocityConversionFactor)
@@ -46,10 +46,10 @@ class SwerveModule:
     self._drivingClosedLoopController = self._drivingMotor.getClosedLoopController()
 
     self._turningMotor = SparkMax(self._config.turningMotorCANId, SparkLowLevel.MotorType.kBrushless)
-    self._turningMotor.setCANMaxRetries(10)
     self._turningMotorConfig = SparkBaseConfig() \
       .setIdleMode(SparkBaseConfig.IdleMode.kBrake) \
-      .smartCurrentLimit(self._constants.kTurningMotorCurrentLimit)
+      .smartCurrentLimit(self._constants.kTurningMotorCurrentLimit) \
+      .secondaryCurrentLimit(self._constants.kTurningMotorCurrentLimit)
     self._turningMotorConfig.absoluteEncoder \
       .inverted(self._constants.kTurningEncoderInverted) \
       .positionConversionFactor(self._constants.kTurningEncoderPositionConversionFactor) \

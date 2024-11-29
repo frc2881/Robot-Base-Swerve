@@ -77,7 +77,7 @@ class LocalizationSubsystem(Subsystem):
 
   def resetPose(self, pose: Pose2d) -> None:
     if not self._isVisionActive:
-      self._poseEstimator.resetPosition(self._getGyroRotation(), self._getSwerveModulePositions(), pose)
+      self._poseEstimator.resetPose(pose)
 
   def hasVisionTargets(self) -> bool:
     for poseSensor in self._poseSensors:
