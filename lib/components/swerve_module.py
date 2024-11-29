@@ -24,18 +24,19 @@ class SwerveModule:
       self._drivingMotor = SparkMax(self._config.drivingMotorCANId, SparkLowLevel.MotorType.kBrushless)
     else: 
       self._drivingMotor = SparkFlex(self._config.drivingMotorCANId, SparkLowLevel.MotorType.kBrushless)
-    self._drivingMotorConfig = SparkBaseConfig() \
-      .setIdleMode(SparkBaseConfig.IdleMode.kBrake) \
-      .smartCurrentLimit(self._constants.kDrivingMotorCurrentLimit) \
-      .secondaryCurrentLimit(self._constants.kDrivingMotorCurrentLimit)
-    self._drivingMotorConfig.encoder \
-      .positionConversionFactor(self._constants.kDrivingEncoderPositionConversionFactor) \
-      .velocityConversionFactor(self._constants.kDrivingEncoderVelocityConversionFactor)
-    self._drivingMotorConfig.closedLoop \
-      .setFeedbackSensor(ClosedLoopConfig.FeedbackSensor.kPrimaryEncoder) \
-      .pidf(self._constants.kDrivingMotorPIDConstants.P, self._constants.kDrivingMotorPIDConstants.I, self._constants.kDrivingMotorPIDConstants.D, self._constants.kDrivingMotorPIDConstants.FF) \
-      .outputRange(self._constants.kDrivingMotorMaxReverseOutput, self._constants.kDrivingMotorMaxForwardOutput)
-    utils.validateREVConfiguration(
+    self._drivingMotorConfig = SparkBaseConfig()
+    (self._drivingMotorConfig
+      .setIdleMode(SparkBaseConfig.IdleMode.kBrake)
+      .smartCurrentLimit(self._constants.kDrivingMotorCurrentLimit)
+      .secondaryCurrentLimit(self._constants.kDrivingMotorCurrentLimit))
+    (self._drivingMotorConfig.encoder
+      .positionConversionFactor(self._constants.kDrivingEncoderPositionConversionFactor)
+      .velocityConversionFactor(self._constants.kDrivingEncoderVelocityConversionFactor))
+    (self._drivingMotorConfig.closedLoop
+      .setFeedbackSensor(ClosedLoopConfig.FeedbackSensor.kPrimaryEncoder)
+      .pidf(self._constants.kDrivingMotorPIDConstants.P, self._constants.kDrivingMotorPIDConstants.I, self._constants.kDrivingMotorPIDConstants.D, self._constants.kDrivingMotorPIDConstants.FF)
+      .outputRange(self._constants.kDrivingMotorMaxReverseOutput, self._constants.kDrivingMotorMaxForwardOutput))
+    utils.setSparkConfig(
       self._drivingMotor.configure(
         self._drivingMotorConfig,
         SparkBase.ResetMode.kResetSafeParameters,
@@ -46,21 +47,21 @@ class SwerveModule:
     self._drivingClosedLoopController = self._drivingMotor.getClosedLoopController()
 
     self._turningMotor = SparkMax(self._config.turningMotorCANId, SparkLowLevel.MotorType.kBrushless)
-    self._turningMotorConfig = SparkBaseConfig() \
-      .setIdleMode(SparkBaseConfig.IdleMode.kBrake) \
-      .smartCurrentLimit(self._constants.kTurningMotorCurrentLimit) \
-      .secondaryCurrentLimit(self._constants.kTurningMotorCurrentLimit)
-    self._turningMotorConfig.absoluteEncoder \
-      .inverted(self._constants.kTurningEncoderInverted) \
-      .positionConversionFactor(self._constants.kTurningEncoderPositionConversionFactor) \
-      .velocityConversionFactor(self._constants.kTurningEncoderVelocityConversionFactor)
-    self._turningMotorConfig.closedLoop \
-      .setFeedbackSensor(ClosedLoopConfig.FeedbackSensor.kAbsoluteEncoder) \
-      .pidf(self._constants.kTurningMotorPIDConstants.P, self._constants.kTurningMotorPIDConstants.I, self._constants.kTurningMotorPIDConstants.D, self._constants.kTurningMotorPIDConstants.FF) \
-      .outputRange(self._constants.kTurningMotorMaxReverseOutput, self._constants.kTurningMotorMaxForwardOutput) \
-      .positionWrappingEnabled(True) \
-      .positionWrappingInputRange(self._constants.kTurningEncoderPositionPIDMinInput, self._constants.kTurningEncoderPositionPIDMaxInput)
-    utils.validateREVConfiguration(
+    self._turningMotorConfig = SparkBaseConfig()
+    (self._turningMotorConfig.setIdleMode(SparkBaseConfig.IdleMode.kBrake)
+      .smartCurrentLimit(self._constants.kTurningMotorCurrentLimit)
+      .secondaryCurrentLimit(self._constants.kTurningMotorCurrentLimit))
+    (self._turningMotorConfig.absoluteEncoder
+      .inverted(self._constants.kTurningEncoderInverted)
+      .positionConversionFactor(self._constants.kTurningEncoderPositionConversionFactor)
+      .velocityConversionFactor(self._constants.kTurningEncoderVelocityConversionFactor))
+    (self._turningMotorConfig.closedLoop
+      .setFeedbackSensor(ClosedLoopConfig.FeedbackSensor.kAbsoluteEncoder)
+      .pidf(self._constants.kTurningMotorPIDConstants.P, self._constants.kTurningMotorPIDConstants.I, self._constants.kTurningMotorPIDConstants.D, self._constants.kTurningMotorPIDConstants.FF)
+      .outputRange(self._constants.kTurningMotorMaxReverseOutput, self._constants.kTurningMotorMaxForwardOutput)
+      .positionWrappingEnabled(True)
+      .positionWrappingInputRange(self._constants.kTurningEncoderPositionPIDMinInput, self._constants.kTurningEncoderPositionPIDMaxInput))
+    utils.setSparkConfig(
       self._turningMotor.configure(
         self._turningMotorConfig,
         SparkBase.ResetMode.kResetSafeParameters,
@@ -90,8 +91,8 @@ class SwerveModule:
 
   def setIdleMode(self, motorIdleMode: MotorIdleMode) -> None:
     idleMode = SparkBaseConfig.IdleMode.kCoast if motorIdleMode == MotorIdleMode.Coast else SparkBaseConfig.IdleMode.kBrake
-    utils.validateREVConfiguration(self._drivingMotor.configure(SparkBaseConfig().setIdleMode(idleMode), SparkBase.ResetMode.kNoResetSafeParameters, SparkBase.PersistMode.kNoPersistParameters))
-    utils.validateREVConfiguration(self._turningMotor.configure(SparkBaseConfig().setIdleMode(idleMode), SparkBase.ResetMode.kNoResetSafeParameters, SparkBase.PersistMode.kNoPersistParameters))
+    utils.setSparkConfig(self._drivingMotor.configure(SparkBaseConfig().setIdleMode(idleMode), SparkBase.ResetMode.kNoResetSafeParameters, SparkBase.PersistMode.kNoPersistParameters))
+    utils.setSparkConfig(self._turningMotor.configure(SparkBaseConfig().setIdleMode(idleMode), SparkBase.ResetMode.kNoResetSafeParameters, SparkBase.PersistMode.kNoPersistParameters))
     
   def _updateTelemetry(self) -> None:
     SmartDashboard.putNumber(f'{self._baseKey}/Driving/Speed/Target', self._drivingTargetSpeed)

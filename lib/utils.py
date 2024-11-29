@@ -72,7 +72,7 @@ def getInterpolatedValue(x: float, xs: list[float], ys: list[float]) -> float:
   except:
     return math.nan
 
-def validateREVConfiguration(error: REVLibError) -> None:
+def setSparkConfig(error: REVLibError) -> None:
   if error != REVLibError.kOk:
     logger.error(f'REVLibError: {error}')
 
