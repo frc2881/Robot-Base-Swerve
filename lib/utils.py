@@ -7,7 +7,7 @@ import wpimath
 from wpimath import units
 from wpimath.geometry import Pose2d, Translation2d
 from wpilib import DriverStation
-from rev import REVLibError
+from rev import SparkBase, SparkBaseConfig, REVLibError
 from lib import logger
 from lib.classes import Alliance, RobotMode, RobotState
 import robot
@@ -71,6 +71,19 @@ def getInterpolatedValue(x: float, xs: list[float], ys: list[float]) -> float:
     return numpy.interp([x], xs, ys)[0]
   except:
     return math.nan
+
+def setSparkSoftLimitsEnabled(motor: SparkBase, enabled: bool) -> None:
+  config = SparkBaseConfig()
+  (config.softLimit
+    .forwardSoftLimitEnabled(enabled)
+    .reverseSoftLimitEnabled(enabled))
+  setSparkConfig(
+    motor.configure(
+      config, 
+      SparkBase.ResetMode.kNoResetSafeParameters, 
+      SparkBase.PersistMode.kNoPersistParameters
+    )
+  )
 
 def setSparkConfig(error: REVLibError) -> None:
   if error != REVLibError.kOk:

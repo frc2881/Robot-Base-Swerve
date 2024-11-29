@@ -20,10 +20,10 @@ class SwerveModule:
     self._baseKey = f'Robot/Drive/SwerveModules/{self._config.location.name}'
     self._drivingTargetSpeed: units.meters_per_second = 0
 
-    if self._constants.kDrivingMotorControllerType == MotorControllerType.SparkMax:
-      self._drivingMotor = SparkMax(self._config.drivingMotorCANId, SparkLowLevel.MotorType.kBrushless)
-    else: 
+    if self._constants.kDrivingMotorControllerType == MotorControllerType.SparkFlex:
       self._drivingMotor = SparkFlex(self._config.drivingMotorCANId, SparkLowLevel.MotorType.kBrushless)
+    else: 
+      self._drivingMotor = SparkMax(self._config.drivingMotorCANId, SparkLowLevel.MotorType.kBrushless)
     self._drivingMotorConfig = SparkBaseConfig()
     (self._drivingMotorConfig
       .setIdleMode(SparkBaseConfig.IdleMode.kBrake)
@@ -43,12 +43,14 @@ class SwerveModule:
         SparkBase.PersistMode.kPersistParameters
       )
     )
-    self._drivingEncoder = self._drivingMotor.getEncoder()
     self._drivingClosedLoopController = self._drivingMotor.getClosedLoopController()
+    self._drivingEncoder = self._drivingMotor.getEncoder()
+    self._drivingEncoder.setPosition(0)
 
     self._turningMotor = SparkMax(self._config.turningMotorCANId, SparkLowLevel.MotorType.kBrushless)
     self._turningMotorConfig = SparkBaseConfig()
-    (self._turningMotorConfig.setIdleMode(SparkBaseConfig.IdleMode.kBrake)
+    (self._turningMotorConfig
+      .setIdleMode(SparkBaseConfig.IdleMode.kBrake)
       .smartCurrentLimit(self._constants.kTurningMotorCurrentLimit)
       .secondaryCurrentLimit(self._constants.kTurningMotorCurrentLimit))
     (self._turningMotorConfig.absoluteEncoder
@@ -68,10 +70,8 @@ class SwerveModule:
         SparkBase.PersistMode.kPersistParameters
       )
     )
-    self._turningEncoder = self._turningMotor.getAbsoluteEncoder()
     self._turningClosedLoopController = self._turningMotor.getClosedLoopController()
-
-    self._drivingEncoder.setPosition(0)
+    self._turningEncoder = self._turningMotor.getAbsoluteEncoder()
 
     utils.addRobotPeriodic(self._updateTelemetry)
 
