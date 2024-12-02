@@ -2,15 +2,21 @@
   "version": "2.0.0",
   "tasks": [
     {
-      "label": "RobotPy: Step 4 - Deploy Robot Code",
+      "label": "RobotPy: Step 5 - Deploy Robot Code",
       "type": "shell",
       "command": "python -m robotpy deploy --skip-tests --robot 10.28.81.2 --ignore-image-version",
       "problemMatcher": []
     },
     {
-      "label": "RobotPy: Step 3 - Simulate Robot Code (Optional)",
+      "label": "RobotPy: Step 4 - Simulate Robot Code (Optional)",
       "type": "shell",
       "command": "python -m robotpy sim",
+      "problemMatcher": []
+    },
+    {
+      "label": "RobotPy: Step 3 - Test Robot Code (Optional)",
+      "type": "shell",
+      "command": "python -m robotpy test",
       "problemMatcher": []
     },
     {

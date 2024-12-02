@@ -1,5 +1,5 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="RobotPy: Step 3 - Simulate Robot Code (Optional)" type="PythonConfigurationType" factoryName="Python">
+  <configuration default="false" name="RobotPy: Step 4 - Simulate Robot Code (Optional)" type="PythonConfigurationType" factoryName="Python">
     <module name="Robot-Base-Swerve" />
     <option name="ENV_FILES" value="" />
     <option name="INTERPRETER_OPTIONS" value="" />
