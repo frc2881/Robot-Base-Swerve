@@ -28,7 +28,6 @@ jobs:
         python -m pip install --upgrade pip
         python -m pip install --upgrade robotpy certifi
         python -m robotpy sync --use-certifi
-        python -m robotpy test
     - name: Test
       run: |
         python -m robotpy test
