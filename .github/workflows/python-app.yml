@@ -12,7 +12,7 @@ permissions:
 jobs:
   build:
 
-    runs-on: macos-latest
+    runs-on: windows-latest
 
     steps:
     - uses: actions/checkout@v4
@@ -25,6 +25,9 @@ jobs:
         python -m pip install --upgrade pip
         python -m pip install --upgrade robotpy==2025.0.0b2 certifi
         python -m robotpy sync --use-certifi
+    - uses: GuillaumeFalourd/wait-sleep-action@v1
+      with:
+        time: "60"
     - name: Test
       run: |
         python -m robotpy test
