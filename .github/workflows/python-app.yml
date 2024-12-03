@@ -28,4 +28,4 @@ jobs:
     - name: Test
       run: |
         python -m pip install pytest-timeout
-        python -m robotpy test --timeout=5
+        python -m robotpy test -- --timeout=5
