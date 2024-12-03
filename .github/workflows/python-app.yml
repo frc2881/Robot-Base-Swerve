@@ -1,7 +1,4 @@
-# This workflow will install Python dependencies, run tests and lint with a single version of Python
-# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-python
-
-name: Python application
+name: RobotPy application
 
 on:
   push:
@@ -14,24 +11,23 @@ permissions:
 
 jobs:
   build:
-
-    runs-on: ubuntu-latest
-
+    runs-on: windows-latest
     steps:
-    - uses: actions/checkout@v4
-    - name: Set up Python 3.12
+    - name: Checkout code from target branch
+      uses: actions/checkout@v4
+    - name: Set up Python 3.12 environment
       uses: actions/setup-python@v3
       with:
         python-version: "3.12"
-    - name: Install
+    - name: Install and sync robotpy and project dependencies
       run: |
         python -m pip install --upgrade pip
-        python -m pip install --upgrade robotpy certifi
+        python -m pip install --upgrade robotpy==2024.3.2.2 certifi
         python -m robotpy sync --use-certifi
-    - name: Test
+    - name: Wait for installation to finalize
+      uses: GuillaumeFalourd/wait-sleep-action@v1
+      with:
+        time: "30"
+    - name: Run robotpy tests
       run: |
-        if ! python -m robotpy test --builtin; then
-          echo "Tests failed."
-          exit 1
-        fi
-        "Tests succeeded."
+        python -m robotpy test
