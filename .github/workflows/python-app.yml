@@ -1,4 +1,4 @@
-name: Python application
+name: RobotPy application
 
 on:
   push:
@@ -11,23 +11,23 @@ permissions:
 
 jobs:
   build:
-
     runs-on: windows-latest
-
     steps:
-    - uses: actions/checkout@v4
-    - name: Set up Python 3.12
+    - name: Checkout code from target branch
+      uses: actions/checkout@v4
+    - name: Set up Python 3.12 environment
       uses: actions/setup-python@v3
       with:
         python-version: "3.12"
-    - name: Install
+    - name: Install and sync robotpy and project dependencies
       run: |
         python -m pip install --upgrade pip
         python -m pip install --upgrade robotpy==2025.0.0b2 certifi
         python -m robotpy sync --use-certifi
-    - uses: GuillaumeFalourd/wait-sleep-action@v1
+    - name: Wait for installation to finalize
+      uses: GuillaumeFalourd/wait-sleep-action@v1
       with:
-        time: "60"
-    - name: Test
+        time: "30"
+    - name: Run robotpy tests
       run: |
         python -m robotpy test
