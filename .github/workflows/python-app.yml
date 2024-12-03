@@ -27,4 +27,4 @@ jobs:
         python -m robotpy sync --use-certifi
     - name: Test
       run: |
-        python -m robotpy test -- -s
+        python -m robotpy test -- -v -s
