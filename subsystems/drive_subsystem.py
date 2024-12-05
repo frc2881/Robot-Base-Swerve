@@ -224,6 +224,10 @@ class DriveSubsystem(Subsystem):
   def reset(self) -> None:
     self._setIdleMode(MotorIdleMode.Brake)
     self.drive(ChassisSpeeds())
+    self._swerveDriveModules[0].reset()
+    self._swerveDriveModules[1].reset()
+    self._swerveDriveModules[2].reset()
+    self._swerveDriveModules[3].reset()
     self.clearTargetAlignment()
   
   def _updateTelemetry(self) -> None:
