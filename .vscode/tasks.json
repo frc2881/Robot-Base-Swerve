@@ -16,7 +16,7 @@
     {
       "label": "RobotPy: Step 3 - Test Robot Code (Optional)",
       "type": "shell",
-      "command": "python -m robotpy test",
+      "command": "python -m robotpy test -- -v -s",
       "problemMatcher": []
     },
     {
