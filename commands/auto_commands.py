@@ -17,10 +17,8 @@ class AutoCommands:
     ) -> None:
     self._robot = robot
 
-    self._paths: dict[AutoPath, PathPlannerPath] = {}
-    for path in AutoPath:
-      self._paths[path] = PathPlannerPath.fromPathFile(path.name)
-
+    self._paths = { path: PathPlannerPath.fromPathFile(path.name) for path in AutoPath }
+    
     self._addAutoOptions()
 
   def _move(self, path: AutoPath) -> Command:
