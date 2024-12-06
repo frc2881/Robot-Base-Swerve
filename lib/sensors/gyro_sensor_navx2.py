@@ -2,15 +2,15 @@ from commands2 import Command, cmd
 from wpilib import SmartDashboard, RobotBase
 from wpimath import units
 from wpimath.geometry import Rotation2d, Pose2d
-import navx
+from navx import AHRS
 from lib import utils
 
 class GyroSensor_NAVX2():
   def __init__(
       self,
-      comType: navx.AHRS.NavXComType
+      comType: AHRS.NavXComType
     ) -> None:
-    self._gyro = navx.AHRS(comType)
+    self._gyro = AHRS(comType)
 
     self._baseKey = f'Robot/Sensor/Gyro'
 

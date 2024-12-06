@@ -22,7 +22,7 @@ class DriveSubsystem(Subsystem):
     
     self._constants = constants.Subsystems.Drive
 
-    self._swerveModules = [ SwerveModule(m, self._constants.SwerveModule) for m in self._constants.kSwerveModules ]
+    self._swerveModules = tuple(SwerveModule(c, self._constants.SwerveModule) for c in self._constants.kSwerveModuleConfigs)
 
     self._isDriftCorrectionActive: bool = False
     self._driftCorrectionThetaController = PIDController(
@@ -141,18 +141,17 @@ class DriveSubsystem(Subsystem):
     for i, m in enumerate(self._swerveModules):
       m.setTargetState(swerveModuleStates[i])
 
+  def _getSwerveModuleStates(self) -> tuple[SwerveModuleState, ...]:
+    return tuple(m.getState() for m in self._swerveModules)
+
+  def getSwerveModulePositions(self) -> tuple[SwerveModulePosition, ...]:
+    return tuple(m.getPosition() for m in self._swerveModules)
+
   def getSpeeds(self) -> ChassisSpeeds:
     return self._constants.kSwerveDriveKinematics.toChassisSpeeds(self._getSwerveModuleStates())
 
-  def getSwerveModulePositions(self) -> tuple[SwerveModulePosition, ...]:
-    return [ m.getPosition() for m in self._swerveModules ]
-  
-  def _getSwerveModuleStates(self) -> tuple[SwerveModuleState, ...]:
-    return [ m.getState() for m in self._swerveModules ]
-  
   def _setIdleMode(self, idleMode: MotorIdleMode) -> None:
-    for m in self._swerveModules:
-      m.setIdleMode(idleMode)
+    for m in self._swerveModules: m.setIdleMode(idleMode)
     SmartDashboard.putString("Robot/Drive/IdleMode/selected", idleMode.name)
 
   def lockCommand(self) -> Command:
@@ -205,8 +204,7 @@ class DriveSubsystem(Subsystem):
   def reset(self) -> None:
     self._setIdleMode(MotorIdleMode.Brake)
     self.drive(ChassisSpeeds())
-    for m in self._swerveModules:
-      m.reset()
+    for m in self._swerveModules: m.reset()
     self.clearTargetAlignment()
   
   def _updateTelemetry(self) -> None:

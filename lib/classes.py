@@ -1,7 +1,9 @@
 from enum import Enum, auto
 from dataclasses import dataclass
 from wpimath import units
-from wpimath.geometry import Translation2d
+from wpimath.geometry import Translation2d, Transform3d
+from robotpy_apriltag import AprilTagFieldLayout
+from photonlibpy.photonPoseEstimator import PoseStrategy
 
 class Alliance(Enum):
   Red = 0
@@ -80,6 +82,14 @@ class SwerveModuleConfig:
   turningMotorCANId: int
   turningOffset: units.radians
   translation: Translation2d
+
+@dataclass(frozen=True)
+class PoseSensorConfig:
+  cameraName: str
+  cameraTransform: Transform3d
+  poseStrategy: PoseStrategy
+  fallbackPoseStrategy: PoseStrategy
+  aprilTagFieldLayout: AprilTagFieldLayout
 
 @dataclass
 class TargetInfo:

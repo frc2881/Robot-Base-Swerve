@@ -25,30 +25,18 @@ class RobotContainer:
 
   def _setupSensors(self) -> None:
     self.gyroSensor = GyroSensor_NAVX2(constants.Sensors.Gyro.NAVX2.kComType)
-
-    self.poseSensors: list[PoseSensor] = []
-    for location, transform in constants.Sensors.Pose.kPoseSensors.items():
-      self.poseSensors.append(PoseSensor(
-        location.name,
-        transform,
-        constants.Sensors.Pose.kPoseStrategy,
-        constants.Sensors.Pose.kFallbackPoseStrategy,
-        constants.Game.Field.kAprilTagFieldLayout
-      ))
-
+    self.poseSensors = tuple(PoseSensor(c) for c in constants.Sensors.Pose.kPoseSensorConfigs)
     SmartDashboard.putString("Robot/Sensor/Camera/Streams", utils.toJson(constants.Sensors.Camera.kStreams))
     
   def _setupSubsystems(self) -> None:
     self.driveSubsystem = DriveSubsystem(
       lambda: self.gyroSensor.getHeading()
     )
-
     self.localizationSubsystem = LocalizationSubsystem(
       self.poseSensors,
       lambda: self.gyroSensor.getRotation(),
       lambda: self.driveSubsystem.getSwerveModulePositions()
     )
-    
     AutoBuilder.configure(
       lambda: self.localizationSubsystem.getPose(), 
       lambda pose: self.localizationSubsystem.resetPose(pose), 

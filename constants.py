@@ -3,12 +3,14 @@ from wpimath import units
 from wpimath.geometry import Transform3d, Translation3d, Rotation3d, Pose3d, Translation2d
 from wpimath.kinematics import SwerveDrive4Kinematics
 from robotpy_apriltag import AprilTagField, AprilTagFieldLayout
-import navx
+from navx import AHRS
 from photonlibpy.photonPoseEstimator import PoseStrategy
 from pathplannerlib.controller import PIDConstants as PathPlannerPIDConstants
 from pathplannerlib.pathfinding import PathConstraints
 from lib import logger, utils
-from lib.classes import PIDConstants, MotorControllerType, ChassisLocation, SwerveModuleConfig
+from lib.classes import PIDConstants, MotorControllerType, ChassisLocation, SwerveModuleConfig, PoseSensorConfig
+
+APRIL_TAG_FIELD_LAYOUT = AprilTagFieldLayout().loadField(AprilTagField.k2024Crescendo)
 
 class Subsystems:
   class Drive:
@@ -35,19 +37,14 @@ class Subsystems:
     kPathFollowerRotationPIDConstants = PathPlannerPIDConstants(5.0, 0, 0)
     kPathFindingConstraints = PathConstraints(2.4, 1.6, units.degreesToRadians(540), units.degreesToRadians(720))
 
-    kSwerveModules = (
+    kSwerveModuleConfigs: tuple[SwerveModuleConfig, ...] = (
       SwerveModuleConfig(ChassisLocation.FrontLeft, 2, 3, -math.pi / 2, Translation2d(kWheelBase / 2, kTrackWidth / 2)),
       SwerveModuleConfig(ChassisLocation.FrontRight, 4, 5, 0, Translation2d(kWheelBase / 2, -kTrackWidth / 2)),
       SwerveModuleConfig(ChassisLocation.RearLeft, 6, 7, math.pi, Translation2d(-kWheelBase / 2, kTrackWidth / 2)),
       SwerveModuleConfig(ChassisLocation.RearRight, 8, 9, math.pi / 2, Translation2d(-kWheelBase / 2, -kTrackWidth / 2))
     )
 
-    kSwerveDriveKinematics = SwerveDrive4Kinematics(
-      kSwerveModules[0].translation,
-      kSwerveModules[1].translation,
-      kSwerveModules[2].translation,
-      kSwerveModules[3].translation
-    )
+    kSwerveDriveKinematics = SwerveDrive4Kinematics(*(c.translation for c in kSwerveModuleConfigs))
 
     class SwerveModule:
       kWheelDiameter: units.meters = units.inchesToMeters(3.0)
@@ -79,20 +76,24 @@ class Subsystems:
 class Sensors:
   class Gyro:
     class NAVX2:
-      kComType = navx.AHRS.NavXComType.kUSB1
+      kComType = AHRS.NavXComType.kUSB1
 
   class Pose:
-    kPoseSensors: dict[ChassisLocation, Transform3d] = {
-      # ChassisLocation.Front: Transform3d(
-      #   Translation3d(units.inchesToMeters(9.62), units.inchesToMeters(4.12), units.inchesToMeters(21.25)),
-      #   Rotation3d(units.degreesToRadians(0), units.degreesToRadians(-22.3), units.degreesToRadians(0.0))
-      # )
-    }
     kPoseStrategy = PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR
     kFallbackPoseStrategy = PoseStrategy.LOWEST_AMBIGUITY
-    kSingleTagStandardDeviations: tuple[float, ...] = [1.0, 1.0, 2.0]
-    kMultiTagStandardDeviations: tuple[float, ...] = [0.5, 0.5, 1.0]
+    kSingleTagStandardDeviations: tuple[float, ...] = (1.0, 1.0, 2.0)
+    kMultiTagStandardDeviations: tuple[float, ...] = (0.5, 0.5, 1.0)
     kMaxPoseAmbiguity: units.percent = 0.2
+
+    kPoseSensorConfigs: tuple[PoseSensorConfig, ...] = (
+      # PoseSensorConfig(
+      #   ChassisLocation.Front.name,
+      #   Transform3d(
+      #     Translation3d(units.inchesToMeters(9.62), units.inchesToMeters(4.12), units.inchesToMeters(21.25)),
+      #     Rotation3d(units.degreesToRadians(0), units.degreesToRadians(-22.3), units.degreesToRadians(0.0))
+      #   ), kPoseStrategy, kFallbackPoseStrategy, APRIL_TAG_FIELD_LAYOUT
+      # ),
+    )
 
   class Camera:
     kStreams: dict[str, str] = {
@@ -104,8 +105,6 @@ class Controllers:
   kDriverControllerPort: int = 0
   kOperatorControllerPort: int = 1
   kInputDeadband: units.percent = 0.1
-
-APRIL_TAG_FIELD_LAYOUT = AprilTagFieldLayout().loadField(AprilTagField.k2024Crescendo)
 
 class Game:
   class Commands:

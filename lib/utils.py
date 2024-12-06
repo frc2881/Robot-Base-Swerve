@@ -66,7 +66,7 @@ def wrapAngle(angle: units.degrees) -> units.degrees:
 def isPoseInBounds(pose: Pose2d, bounds: Tuple[Translation2d, Translation2d]) -> bool:
   return isValueInRange(pose.X(), bounds[0].X(), bounds[1].X()) and isValueInRange(pose.Y(), bounds[0].Y(), bounds[1].Y())
 
-def getInterpolatedValue(x: float, xs: list[float], ys: list[float]) -> float:
+def getInterpolatedValue(x: float, xs: tuple[float, ...], ys: tuple[float, ...]) -> float:
   try:
     return numpy.interp([x], xs, ys)[0]
   except:

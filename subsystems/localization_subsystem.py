@@ -15,7 +15,7 @@ import constants
 class LocalizationSubsystem(Subsystem):
   def __init__(
       self,
-      poseSensors: list[PoseSensor],
+      poseSensors: tuple[PoseSensor, ...],
       getGyroRotation: Callable[[], Rotation2d],
       getSwerveModulePositions: Callable[[], tuple[SwerveModulePosition, ...]]
     ) -> None:

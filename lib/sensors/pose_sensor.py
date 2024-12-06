@@ -1,25 +1,19 @@
 from wpilib import SmartDashboard
-from wpimath.geometry import Transform3d
-from robotpy_apriltag import AprilTagFieldLayout
 from photonlibpy.photonCamera import PhotonCamera
-from photonlibpy.photonPoseEstimator import PhotonPoseEstimator, PoseStrategy, EstimatedRobotPose
+from photonlibpy.photonPoseEstimator import PhotonPoseEstimator, EstimatedRobotPose
 from lib import utils
+from lib.classes import PoseSensorConfig
 
 class PoseSensor:
   def __init__(
       self, 
-      cameraName: str,
-      cameraTransform: Transform3d,
-      poseStrategy: PoseStrategy,
-      fallbackPoseStrategy: PoseStrategy,
-      aprilTagFieldLayout: AprilTagFieldLayout
+      config: PoseSensorConfig
     ) -> None:
-    self._cameraName = cameraName
-    self._baseKey = f'Robot/Sensor/Pose/{self._cameraName}'
-    self._photonCamera = PhotonCamera(cameraName)
+    self._baseKey = f'Robot/Sensor/Pose/{config.cameraName}'
+    self._photonCamera = PhotonCamera(config.cameraName)
     self._photonCamera.setDriverMode(False)
-    self._photonPoseEstimator = PhotonPoseEstimator(aprilTagFieldLayout, poseStrategy, self._photonCamera, cameraTransform)
-    self._photonPoseEstimator.multiTagFallbackStrategy = fallbackPoseStrategy
+    self._photonPoseEstimator = PhotonPoseEstimator(config.aprilTagFieldLayout, config.poseStrategy, self._photonCamera, config.cameraTransform)
+    self._photonPoseEstimator.multiTagFallbackStrategy = config.fallbackPoseStrategy
     self._hasTarget = False
     self._targetCount: int = 0
 
