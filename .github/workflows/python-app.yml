@@ -22,12 +22,12 @@ jobs:
     - name: Install and sync robotpy and project dependencies
       run: |
         python -m pip install --upgrade pip
-        python -m pip install --upgrade robotpy==2025.0.0b2 certifi
-        python -m robotpy sync --use-certifi
+        python ./scripts/install.py
+        python ./scripts/sync.py
     - name: Wait for installation to finalize
       uses: GuillaumeFalourd/wait-sleep-action@v1
       with:
         time: "30"
     - name: Run robotpy tests
       run: |
-        python -m robotpy test
+        python ./scripts/test.py

@@ -2,33 +2,33 @@
   "version": "2.0.0",
   "tasks": [
     {
-      "label": "RobotPy: Step 5 - Deploy Robot Code",
+      "label": "RobotPy: Step 1 - Install RobotPy",
       "type": "shell",
-      "command": "python -m robotpy deploy --skip-tests --robot 10.28.81.2 --ignore-image-version",
+      "command": "python ./scripts/install.py", 
       "problemMatcher": []
     },
     {
-      "label": "RobotPy: Step 4 - Simulate Robot Code (Optional)",
+      "label": "RobotPy: Step 2 - Sync RobotPy",
       "type": "shell",
-      "command": "python -m robotpy sim",
+      "command": "python ./scripts/sync.py",
       "problemMatcher": []
     },
     {
       "label": "RobotPy: Step 3 - Test Robot Code (Optional)",
       "type": "shell",
-      "command": "python -m robotpy test -- -v -s",
+      "command": "python ./scripts/test.py",
       "problemMatcher": []
     },
     {
-      "label": "RobotPy: Step 2 - Download & Sync RobotPy for roboRIO",
+      "label": "RobotPy: Step 4 - Simulate Robot Code (Optional)",
       "type": "shell",
-      "command": "python -m robotpy sync --use-certifi",
+      "command": "python ./scripts/simulate.py",
       "problemMatcher": []
     },
     {
-      "label": "RobotPy: Step 1 - Install / Upgrade RobotPy",
+      "label": "RobotPy: Step 5 - Deploy Robot Code",
       "type": "shell",
-      "command": "python -m pip install --upgrade robotpy==2025.0.0b2 certifi", 
+      "command": "python ./scripts/deploy.py",
       "problemMatcher": []
     }
   ]
