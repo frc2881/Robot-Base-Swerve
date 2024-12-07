@@ -41,7 +41,7 @@ class RobotContainer:
       lambda: self.localizationSubsystem.getPose(), 
       lambda pose: self.localizationSubsystem.resetPose(pose), 
       lambda: self.driveSubsystem.getSpeeds(), 
-      lambda chassisSpeeds, driveFeedForwards: self.driveSubsystem.drive(chassisSpeeds), 
+      lambda chassisSpeeds, driveFeedforwards: self.driveSubsystem.drive(chassisSpeeds), 
       PPHolonomicDriveController(
         constants.Subsystems.Drive.kPathFollowerTranslationPIDConstants,
         constants.Subsystems.Drive.kPathFollowerRotationPIDConstants
