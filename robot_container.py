@@ -18,9 +18,9 @@ class RobotContainer:
   def __init__(self) -> None:
     self._setupSensors()
     self._setupSubsystems()
+    self._setupControllers()
     self._setupCommands()
     self._setupTriggers()
-    self._setupControllers()
     utils.addRobotPeriodic(lambda: self._updateTelemetry())
 
   def _setupSensors(self) -> None:
@@ -51,29 +51,19 @@ class RobotContainer:
       self.driveSubsystem
     )
     
-  def _setupCommands(self) -> None:
-    self.gameCommands = GameCommands(self)
-    self._autoCommand = cmd.none()
-    self._autoChooser = SendableChooser()
-    self._autoChooser.setDefaultOption("None", cmd.none)
-    self._autoChooser.onChange(lambda command: setattr(self, "_autoCommand", command()))
-    self.autoCommands = AutoCommands(self)
-    SmartDashboard.putData("Robot/Auto/Command", self._autoChooser)
-
-  def _setupTriggers(self) -> None:
-    pass
-
   def _setupControllers(self) -> None:
-    self.driverController = GameController(
-      constants.Controllers.kDriverControllerPort, 
-      constants.Controllers.kInputDeadband
-    )
-    self.operatorController = GameController(
-      constants.Controllers.kOperatorControllerPort, 
-      constants.Controllers.kInputDeadband
-    )
+    self.driverController = GameController(constants.Controllers.kDriverControllerPort, constants.Controllers.kInputDeadband)
+    self.operatorController = GameController(constants.Controllers.kOperatorControllerPort, constants.Controllers.kInputDeadband)
     DriverStation.silenceJoystickConnectionWarning(True)
 
+  def _setupCommands(self) -> None:
+    self.gameCommands = GameCommands(self)
+    self.autoChooser = SendableChooser()
+    self.autoChooser.setDefaultOption("None", lambda: cmd.none())
+    SmartDashboard.putData("Robot/Auto/Command", self.autoChooser)
+    self.autoCommands = AutoCommands(self)
+
+  def _setupTriggers(self) -> None:
     self.driveSubsystem.setDefaultCommand(
       self.driveSubsystem.driveCommand(
         lambda: self.driverController.getLeftY(),
@@ -118,11 +108,8 @@ class RobotContainer:
   def _updateTelemetry(self) -> None:
     SmartDashboard.putBoolean("Robot/HasInitialZeroResets", self._robotHasInitialZeroResets())
 
-  def addAutoOption(self, name: str, command: object) -> None:
-    self._autoChooser.addOption(name, command)
-
   def getAutoCommand(self) -> Command:
-    return self._autoCommand
+    return self.autoChooser.getSelected()()
 
   def autoInit(self) -> None:
     self.resetRobot()

@@ -108,9 +108,7 @@ class Controllers:
 
 class Game:
   class Commands:
-    kScoringAlignmentTimeout: units.seconds = 0.8
-    kScoringLaunchTimeout: units.seconds = 1.0
-    kAutoPickupTimeout: units.seconds = 4.0
+    kAutoMoveTimeout: units.seconds = 4.0
 
   class Field:
     kAprilTagFieldLayout = APRIL_TAG_FIELD_LAYOUT
