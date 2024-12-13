@@ -15,7 +15,7 @@
     * `RobotPy: Step 2 - Sync RobotPy`
     * `RobotPy: Step 3 - Test Robot Code (Optional)`
     * `RobotPy: Step 4 - Simulate Robot Code (Optional)`
-    * `RobotPy: Step 4 - Deploy Robot Code`
+    * `RobotPy: Step 5 - Deploy Robot Code`
 
 ## Project Notes & Status
 * RobotPy API documentation and guides are available: https://robotpy.readthedocs.io/en/stable/index.html
