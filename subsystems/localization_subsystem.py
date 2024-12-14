@@ -15,12 +15,12 @@ import constants
 class LocalizationSubsystem(Subsystem):
   def __init__(
       self,
-      poseSensors: tuple[PoseSensor, ...],
+      # poseSensors: tuple[PoseSensor, ...],
       getGyroRotation: Callable[[], Rotation2d],
       getSwerveModulePositions: Callable[[], tuple[SwerveModulePosition, ...]]
     ) -> None:
     super().__init__()
-    self._poseSensors = poseSensors
+    # self._poseSensors = poseSensors
     self._getGyroRotation = getGyroRotation
     self._getSwerveModulePositions = getSwerveModulePositions
 
@@ -52,24 +52,24 @@ class LocalizationSubsystem(Subsystem):
 
   def _updatePose(self) -> None:
     self._poseEstimator.update(self._getGyroRotation(), self._getSwerveModulePositions())
-    for poseSensor in self._poseSensors:
-      estimatedRobotPose = poseSensor.getEstimatedRobotPose()
-      if estimatedRobotPose is not None:
-        pose = estimatedRobotPose.estimatedPose.toPose2d()
-        if utils.isPoseInBounds(pose, constants.Game.Field.kBounds):
-          if estimatedRobotPose.strategy == PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR:
-            self._poseEstimator.addVisionMeasurement(
-              pose,
-              estimatedRobotPose.timestampSeconds,
-              constants.Sensors.Pose.kMultiTagStandardDeviations
-            )
-            self._isVisionActive = True
-          else:
-            for target in estimatedRobotPose.targetsUsed:
-              if utils.isValueInRange(target.getPoseAmbiguity(), 0, constants.Sensors.Pose.kMaxPoseAmbiguity):
-                self._poseEstimator.addVisionMeasurement(pose, estimatedRobotPose.timestampSeconds, constants.Sensors.Pose.kSingleTagStandardDeviations)
-                self._isVisionActive = True
-                break
+    # for poseSensor in self._poseSensors:
+    #   estimatedRobotPose = poseSensor.getEstimatedRobotPose()
+    #   if estimatedRobotPose is not None:
+    #     pose = estimatedRobotPose.estimatedPose.toPose2d()
+    #     if utils.isPoseInBounds(pose, constants.Game.Field.kBounds):
+    #       if estimatedRobotPose.strategy == PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR:
+    #         self._poseEstimator.addVisionMeasurement(
+    #           pose,
+    #           estimatedRobotPose.timestampSeconds,
+    #           constants.Sensors.Pose.kMultiTagStandardDeviations
+    #         )
+    #         self._isVisionActive = True
+    #       else:
+    #         for target in estimatedRobotPose.targetsUsed:
+    #           if utils.isValueInRange(target.getPoseAmbiguity(), 0, constants.Sensors.Pose.kMaxPoseAmbiguity):
+    #             self._poseEstimator.addVisionMeasurement(pose, estimatedRobotPose.timestampSeconds, constants.Sensors.Pose.kSingleTagStandardDeviations)
+    #             self._isVisionActive = True
+    #             break
     self._pose = self._poseEstimator.getEstimatedPosition()
 
   def getPose(self) -> Pose2d:
@@ -80,9 +80,9 @@ class LocalizationSubsystem(Subsystem):
       self._poseEstimator.resetPose(pose)
 
   def hasVisionTargets(self) -> bool:
-    for poseSensor in self._poseSensors:
-      if poseSensor.hasTarget():
-        return True
+    # for poseSensor in self._poseSensors:
+    #   if poseSensor.hasTarget():
+    #     return True
     return False
 
   def _updateTargetPose(self) -> None:
