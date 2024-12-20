@@ -78,14 +78,14 @@ class Sensors:
     class NAVX2:
       kComType = AHRS.NavXComType.kUSB1
 
-  # class Pose:
-  #   kPoseStrategy = PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR
-  #   kFallbackPoseStrategy = PoseStrategy.LOWEST_AMBIGUITY
-  #   kSingleTagStandardDeviations: tuple[float, ...] = (1.0, 1.0, 2.0)
-  #   kMultiTagStandardDeviations: tuple[float, ...] = (0.5, 0.5, 1.0)
-  #   kMaxPoseAmbiguity: units.percent = 0.2
+  class Pose:
+    kPoseStrategy = PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR
+    kFallbackPoseStrategy = PoseStrategy.LOWEST_AMBIGUITY
+    kSingleTagStandardDeviations: tuple[float, ...] = (1.0, 1.0, 2.0)
+    kMultiTagStandardDeviations: tuple[float, ...] = (0.5, 0.5, 1.0)
+    kMaxPoseAmbiguity: units.percent = 0.2
 
-  #   kPoseSensorConfigs: tuple[PoseSensorConfig, ...] = (
+    kPoseSensorConfigs: tuple[PoseSensorConfig, ...] = (
       # PoseSensorConfig(
       #   ChassisLocation.Front.name,
       #   Transform3d(
@@ -93,13 +93,13 @@ class Sensors:
       #     Rotation3d(units.degreesToRadians(0), units.degreesToRadians(-22.3), units.degreesToRadians(0.0))
       #   ), kPoseStrategy, kFallbackPoseStrategy, APRIL_TAG_FIELD_LAYOUT
       # ),
-   # )
+   )
 
-  # class Camera:
-  #   kStreams: dict[str, str] = {
-  #     # "Front": "http://10.28.81.6:1184/?action=stream",
-  #     # "Driver": "http://10.28.81.6:1188/?action=stream"
-  #   }
+  class Camera:
+    kStreams: dict[str, str] = {
+      # "Front": "http://10.28.81.6:1184/?action=stream",
+      # "Driver": "http://10.28.81.6:1188/?action=stream"
+    }
 
 class Controllers:
   kDriverControllerPort: int = 0

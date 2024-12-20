@@ -25,15 +25,15 @@ class RobotContainer:
 
   def _setupSensors(self) -> None:
     self.gyroSensor = GyroSensor_NAVX2(constants.Sensors.Gyro.NAVX2.kComType)
-    # self.poseSensors = tuple(PoseSensor(c) for c in constants.Sensors.Pose.kPoseSensorConfigs)
-    # SmartDashboard.putString("Robot/Sensor/Camera/Streams", utils.toJson(constants.Sensors.Camera.kStreams))
+    self.poseSensors = tuple(PoseSensor(c) for c in constants.Sensors.Pose.kPoseSensorConfigs)
+    SmartDashboard.putString("Robot/Sensor/Camera/Streams", utils.toJson(constants.Sensors.Camera.kStreams))
     
   def _setupSubsystems(self) -> None:
     self.driveSubsystem = DriveSubsystem(
       lambda: self.gyroSensor.getHeading()
     )
     self.localizationSubsystem = LocalizationSubsystem(
-      # self.poseSensors,
+      self.poseSensors,
       lambda: self.gyroSensor.getRotation(),
       lambda: self.driveSubsystem.getSwerveModulePositions()
     )
