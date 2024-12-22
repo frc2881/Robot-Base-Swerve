@@ -8,6 +8,6 @@ robotpy_extras = [
   "sim"
 ]
 requires = [
-  "photonlibpy==2025.0.0b7",
+  "photonlibpy==2025.0.0b8",
   "numpy"
 ]

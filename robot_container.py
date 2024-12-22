@@ -21,7 +21,7 @@ class RobotContainer:
     self._setupControllers()
     self._setupCommands()
     self._setupTriggers()
-    utils.addRobotPeriodic(lambda: self._updateTelemetry())
+    utils.addRobotPeriodic(self._updateTelemetry)
 
   def _setupSensors(self) -> None:
     self.gyroSensor = GyroSensor_NAVX2(constants.Sensors.Gyro.NAVX2.kComType)
@@ -30,17 +30,17 @@ class RobotContainer:
     
   def _setupSubsystems(self) -> None:
     self.driveSubsystem = DriveSubsystem(
-      lambda: self.gyroSensor.getHeading()
+      self.gyroSensor.getHeading
     )
     self.localizationSubsystem = LocalizationSubsystem(
       self.poseSensors,
-      lambda: self.gyroSensor.getRotation(),
-      lambda: self.driveSubsystem.getSwerveModulePositions()
+      self.gyroSensor.getRotation,
+      self.driveSubsystem.getSwerveModulePositions
     )
     AutoBuilder.configure(
-      lambda: self.localizationSubsystem.getPose(), 
-      lambda pose: self.localizationSubsystem.resetPose(pose), 
-      lambda: self.driveSubsystem.getSpeeds(), 
+      self.localizationSubsystem.getPose, 
+      self.localizationSubsystem.resetPose, 
+      self.driveSubsystem.getSpeeds, 
       lambda chassisSpeeds, driveFeedforwards: self.driveSubsystem.drive(chassisSpeeds), 
       PPHolonomicDriveController(
         constants.Subsystems.Drive.kPathFollowerTranslationPIDConstants,
@@ -58,17 +58,17 @@ class RobotContainer:
 
   def _setupCommands(self) -> None:
     self.gameCommands = GameCommands(self)
-    self.autoChooser = SendableChooser()
-    self.autoChooser.setDefaultOption("None", lambda: cmd.none())
-    SmartDashboard.putData("Robot/Auto/Command", self.autoChooser)
+    self.autoCommandChooser = SendableChooser()
     self.autoCommands = AutoCommands(self)
+    self.autoCommands.addAutoOptions()
+    SmartDashboard.putData("Robot/Auto/Command", self.autoCommandChooser)
 
   def _setupTriggers(self) -> None:
     self.driveSubsystem.setDefaultCommand(
       self.driveSubsystem.driveCommand(
-        lambda: self.driverController.getLeftY(),
-        lambda: self.driverController.getLeftX(),
-        lambda: self.driverController.getRightX()
+        self.driverController.getLeftY,
+        self.driverController.getLeftX,
+        self.driverController.getRightX
     ))
     self.driverController.rightStick().whileTrue(self.gameCommands.alignRobotToTargetCommand())
     self.driverController.leftStick().whileTrue(self.driveSubsystem.lockCommand())
@@ -109,7 +109,7 @@ class RobotContainer:
     SmartDashboard.putBoolean("Robot/HasInitialZeroResets", self._robotHasInitialZeroResets())
 
   def getAutoCommand(self) -> Command:
-    return self.autoChooser.getSelected()()
+    return self.autoCommandChooser.getSelected()()
 
   def autoInit(self) -> None:
     self.resetRobot()

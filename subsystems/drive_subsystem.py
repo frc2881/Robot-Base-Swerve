@@ -100,6 +100,13 @@ class DriveSubsystem(Subsystem):
       lambda: self._lockState != LockState.Locked
     ).withName("DriveSubsystem:Drive")
 
+  def drive(self, chassisSpeeds: ChassisSpeeds) -> None:
+    self._setSwerveModuleStates(
+      self._constants.kSwerveDriveKinematics.toSwerveModuleStates(
+        ChassisSpeeds.discretize(chassisSpeeds, 0.02)
+      )
+    )
+
   def _drive(self, inputX: units.percent, inputY: units.percent, inputRotation: units.percent) -> None:
     if self._driftCorrection == OptionState.Enabled:
       isTranslating: bool = inputX != 0 or inputY != 0
@@ -128,13 +135,6 @@ class DriveSubsystem(Subsystem):
       self.drive(ChassisSpeeds.fromFieldRelativeSpeeds(speedX, speedY, speedRotation, Rotation2d.fromDegrees(self._getGyroHeading())))
     else:
       self.drive(ChassisSpeeds(speedX, speedY, speedRotation))      
-
-  def drive(self, chassisSpeeds: ChassisSpeeds) -> None:
-    self._setSwerveModuleStates(
-      self._constants.kSwerveDriveKinematics.toSwerveModuleStates(
-        ChassisSpeeds.discretize(chassisSpeeds, 0.02)
-      )
-    )
 
   def _setSwerveModuleStates(self, swerveModuleStates: tuple[SwerveModuleState, ...]) -> None:
     SwerveDrive4Kinematics.desaturateWheelSpeeds(swerveModuleStates, self._constants.kTranslationSpeedMax)
@@ -202,9 +202,7 @@ class DriveSubsystem(Subsystem):
     self._isAlignedToTarget = False
 
   def reset(self) -> None:
-    self._setIdleMode(MotorIdleMode.Brake)
     self.drive(ChassisSpeeds())
-    for m in self._swerveModules: m.reset()
     self.clearTargetAlignment()
   
   def _updateTelemetry(self) -> None:

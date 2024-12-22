@@ -32,20 +32,18 @@ class GyroSensor_NAVX2():
     return self._gyro.getRate()
   
   def _reset(self, heading: units.degrees = 0) -> None:
-    self._gyro.reset()
     self._gyro.setAngleAdjustment(-heading if heading != 0 else 0)
+    self._gyro.reset()
 
   def resetRobotToField(self, robotPose: Pose2d) -> None:
     self._reset(utils.wrapAngle(robotPose.rotation().degrees() + utils.getValueForAlliance(0.0, 180.0)))
 
   def resetCommand(self) -> Command:
-    return cmd.runOnce(
-      lambda: self._reset()
-    ).ignoringDisable(True).withName("GyroSensor:Reset")
+    return cmd.runOnce(self._reset).ignoringDisable(True).withName("GyroSensor:Reset")
 
   def _calibrate(self) -> None:
     if RobotBase.isReal():
-      self._gyro.calibrate() # NO-OP as navX2 currently does automatic calibration
+      pass # NO-OP as navX2 currently does automatic calibration
 
   def calibrateCommand(self) -> Command:
     return cmd.sequence(

@@ -18,7 +18,6 @@ class AutoCommands:
     self._robot = robot
 
     self._paths = { path: PathPlannerPath.fromPathFile(path.name) for path in AutoPath }
-    self._addAutoOptions()
 
   def _move(self, path: AutoPath) -> Command:
     return AutoBuilder.pathfindThenFollowPath(
@@ -31,9 +30,10 @@ class AutoCommands:
   def _alignToTarget(self) -> Command:
     return cmd.sequence(self._robot.gameCommands.alignRobotToTargetCommand())
 
-  def _addAutoOptions(self) -> None:
-    self._robot.autoChooser.addOption("[0] 0_", lambda: self.auto_0_())
-    self._robot.autoChooser.addOption("[2] 2_", lambda: self.auto_2_())
+  def addAutoOptions(self) -> None:
+    self._robot.autoCommandChooser.setDefaultOption("None", cmd.none)
+    self._robot.autoCommandChooser.addOption("[0] 0_", self.auto_0_)
+    self._robot.autoCommandChooser.addOption("[2] 2_", self.auto_2_)
 
   def auto_0_(self) -> Command:
     return cmd.sequence(
