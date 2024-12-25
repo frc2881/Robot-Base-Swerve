@@ -1,6 +1,7 @@
 from typing import TYPE_CHECKING
 from enum import Enum, auto
 from commands2 import Command, cmd
+from wpilib import SendableChooser
 from pathplannerlib.auto import AutoBuilder
 from pathplannerlib.path import PathPlannerPath
 if TYPE_CHECKING: from robot_container import RobotContainer
@@ -30,10 +31,10 @@ class AutoCommands:
   def _alignToTarget(self) -> Command:
     return cmd.sequence(self._robot.gameCommands.alignRobotToTargetCommand())
 
-  def addAutoOptions(self) -> None:
-    self._robot.autoCommandChooser.setDefaultOption("None", cmd.none)
-    self._robot.autoCommandChooser.addOption("[0] 0_", self.auto_0_)
-    self._robot.autoCommandChooser.addOption("[2] 2_", self.auto_2_)
+  def addAutoOptions(self, chooser: SendableChooser) -> None:
+    chooser.setDefaultOption("None", cmd.none)
+    chooser.addOption("[0] 0_", self.auto_0_)
+    chooser.addOption("[2] 2_", self.auto_2_)
 
   def auto_0_(self) -> Command:
     return cmd.sequence(

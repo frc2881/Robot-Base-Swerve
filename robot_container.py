@@ -29,9 +29,7 @@ class RobotContainer:
     SmartDashboard.putString("Robot/Sensor/Camera/Streams", utils.toJson(constants.Sensors.Camera.kStreams))
     
   def _setupSubsystems(self) -> None:
-    self.driveSubsystem = DriveSubsystem(
-      self.gyroSensor.getHeading
-    )
+    self.driveSubsystem = DriveSubsystem(self.gyroSensor.getHeading)
     self.localizationSubsystem = LocalizationSubsystem(
       self.poseSensors,
       self.gyroSensor.getRotation,
@@ -58,10 +56,10 @@ class RobotContainer:
 
   def _setupCommands(self) -> None:
     self.gameCommands = GameCommands(self)
-    self.autoCommandChooser = SendableChooser()
     self.autoCommands = AutoCommands(self)
-    self.autoCommands.addAutoOptions()
-    SmartDashboard.putData("Robot/Auto/Command", self.autoCommandChooser)
+    self._autoCommandChooser = SendableChooser()
+    self.autoCommands.addAutoOptions(self._autoCommandChooser)
+    SmartDashboard.putData("Robot/Auto/Command", self._autoCommandChooser)
 
   def _setupTriggers(self) -> None:
     self.driveSubsystem.setDefaultCommand(
@@ -109,7 +107,7 @@ class RobotContainer:
     SmartDashboard.putBoolean("Robot/HasInitialZeroResets", self._robotHasInitialZeroResets())
 
   def getAutoCommand(self) -> Command:
-    return self.autoCommandChooser.getSelected()()
+    return self._autoCommandChooser.getSelected()()
 
   def autoInit(self) -> None:
     self.resetRobot()
@@ -125,5 +123,3 @@ class RobotContainer:
 
   def resetRobot(self) -> None:
     self.driveSubsystem.reset()
-
-
