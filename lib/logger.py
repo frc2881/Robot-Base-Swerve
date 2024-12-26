@@ -1,6 +1,6 @@
 import traceback
-from wpilib import DataLogManager, DriverStation, Timer, SmartDashboard
 from commands2 import CommandScheduler
+from wpilib import DataLogManager, DriverStation, Timer, SmartDashboard
 from lib.classes import RobotMode
 
 def start() -> None:

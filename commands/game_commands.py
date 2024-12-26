@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING
-from wpilib import RobotBase
 from commands2 import Command, cmd
+from wpilib import RobotBase
 if TYPE_CHECKING: from robot_container import RobotContainer
 from lib import utils
 from lib.classes import ControllerRumbleMode, ControllerRumblePattern

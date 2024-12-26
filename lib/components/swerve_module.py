@@ -78,7 +78,6 @@ class SwerveModule:
   def setTargetState(self, targetState: SwerveModuleState) -> None:
     targetState.angle = targetState.angle.__add__(Rotation2d(self._config.turningOffset))
     targetState.optimize(Rotation2d(self._turningEncoder.getPosition()))
-    targetState.speed *= targetState.angle.__sub__(Rotation2d(self._turningEncoder.getPosition())).cos()
     self._drivingClosedLoopController.setReference(targetState.speed, SparkBase.ControlType.kVelocity)
     self._turningClosedLoopController.setReference(targetState.angle.radians(), SparkBase.ControlType.kPosition)
     self._drivingTargetSpeed = targetState.speed

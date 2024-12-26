@@ -1,7 +1,6 @@
 from commands2 import Command, cmd
 from wpilib import DriverStation, SendableChooser, SmartDashboard
 from pathplannerlib.auto import AutoBuilder
-from pathplannerlib.config import RobotConfig
 from pathplannerlib.controller import PPHolonomicDriveController
 from lib import logger, utils
 from lib.classes import Alliance
@@ -38,13 +37,13 @@ class RobotContainer:
     AutoBuilder.configure(
       self.localizationSubsystem.getPose, 
       self.localizationSubsystem.resetPose, 
-      self.driveSubsystem.getSpeeds, 
-      lambda chassisSpeeds, driveFeedforwards: self.driveSubsystem.drive(chassisSpeeds), 
+      self.driveSubsystem.getChassisSpeeds, 
+      self.driveSubsystem.drive, 
       PPHolonomicDriveController(
         constants.Subsystems.Drive.kPathFollowerTranslationPIDConstants,
         constants.Subsystems.Drive.kPathFollowerRotationPIDConstants
       ),
-      RobotConfig.fromGUISettings(),
+      constants.Subsystems.Drive.kPathPlannerRobotConfig,
       lambda: utils.getAlliance() == Alliance.Red,
       self.driveSubsystem
     )
