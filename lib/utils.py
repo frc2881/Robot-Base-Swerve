@@ -73,13 +73,9 @@ def getInterpolatedValue(x: float, xs: tuple[float, ...], ys: tuple[float, ...])
     return math.nan
 
 def setSparkSoftLimitsEnabled(motor: SparkBase, enabled: bool) -> None:
-  config = SparkBaseConfig()
-  (config.softLimit
-    .forwardSoftLimitEnabled(enabled)
-    .reverseSoftLimitEnabled(enabled))
   setSparkConfig(
     motor.configure(
-      config, 
+      SparkBaseConfig().softLimit.forwardSoftLimitEnabled(enabled).reverseSoftLimitEnabled(enabled), 
       SparkBase.ResetMode.kNoResetSafeParameters, 
       SparkBase.PersistMode.kNoPersistParameters
     )

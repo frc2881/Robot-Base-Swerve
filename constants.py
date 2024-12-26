@@ -96,7 +96,7 @@ class Sensors:
       #     Rotation3d(units.degreesToRadians(0), units.degreesToRadians(-22.3), units.degreesToRadians(0.0))
       #   ), kPoseStrategy, kFallbackPoseStrategy, APRIL_TAG_FIELD_LAYOUT
       # ),
-   )
+    )
 
   class Camera:
     kStreams: dict[str, str] = {

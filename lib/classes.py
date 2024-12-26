@@ -84,6 +84,13 @@ class SwerveModuleConfig:
   translation: Translation2d
 
 @dataclass(frozen=True)
+class DifferentialModuleConfig:
+  location: ChassisLocation
+  drivingMotorCANId: int
+  leaderMotorCANId: int | None
+  isInverted: bool
+
+@dataclass(frozen=True)
 class PoseSensorConfig:
   cameraName: str
   cameraTransform: Transform3d
