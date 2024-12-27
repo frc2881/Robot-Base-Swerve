@@ -9,8 +9,8 @@ class PoseSensor:
       self, 
       config: PoseSensorConfig
     ) -> None:
-    self._baseKey = f'Robot/Sensor/Pose/{config.cameraName}'
-    self._photonCamera = PhotonCamera(config.cameraName)
+    self._baseKey = f'Robot/Sensor/Pose/{config.location.name}'
+    self._photonCamera = PhotonCamera(config.location.name)
     self._photonCamera.setDriverMode(False)
     self._photonPoseEstimator = PhotonPoseEstimator(config.aprilTagFieldLayout, config.poseStrategy, self._photonCamera, config.cameraTransform)
     self._photonPoseEstimator.multiTagFallbackStrategy = config.fallbackPoseStrategy

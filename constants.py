@@ -9,7 +9,7 @@ from pathplannerlib.controller import PIDConstants as PathPlannerPIDConstants
 from pathplannerlib.pathfinding import PathConstraints
 from photonlibpy.photonPoseEstimator import PoseStrategy
 from lib import logger, utils
-from lib.classes import PIDConstants, MotorControllerType, ChassisLocation, SwerveModuleConfig, PoseSensorConfig
+from lib.classes import PIDConstants, MotorControllerType, SwerveModuleConfig, SwerveModuleLocation, PoseSensorConfig, PoseSensorLocation
 
 APRIL_TAG_FIELD_LAYOUT = AprilTagFieldLayout().loadField(AprilTagField.k2024Crescendo)
 PATHPLANNER_ROBOT_CONFIG = RobotConfig.fromGUISettings()
@@ -41,10 +41,10 @@ class Subsystems:
     kPathFindingConstraints = PathConstraints(2.4, 1.6, units.degreesToRadians(540), units.degreesToRadians(720))
 
     kSwerveModuleConfigs: tuple[SwerveModuleConfig, ...] = (
-      SwerveModuleConfig(ChassisLocation.FrontLeft, 2, 3, -math.pi / 2, Translation2d(kWheelBase / 2, kTrackWidth / 2)),
-      SwerveModuleConfig(ChassisLocation.FrontRight, 4, 5, 0, Translation2d(kWheelBase / 2, -kTrackWidth / 2)),
-      SwerveModuleConfig(ChassisLocation.RearLeft, 6, 7, math.pi, Translation2d(-kWheelBase / 2, kTrackWidth / 2)),
-      SwerveModuleConfig(ChassisLocation.RearRight, 8, 9, math.pi / 2, Translation2d(-kWheelBase / 2, -kTrackWidth / 2))
+      SwerveModuleConfig(SwerveModuleLocation.FrontLeft, 2, 3, -math.pi / 2, Translation2d(kWheelBase / 2, kTrackWidth / 2)),
+      SwerveModuleConfig(SwerveModuleLocation.FrontRight, 4, 5, 0, Translation2d(kWheelBase / 2, -kTrackWidth / 2)),
+      SwerveModuleConfig(SwerveModuleLocation.RearLeft, 6, 7, math.pi, Translation2d(-kWheelBase / 2, kTrackWidth / 2)),
+      SwerveModuleConfig(SwerveModuleLocation.RearRight, 8, 9, math.pi / 2, Translation2d(-kWheelBase / 2, -kTrackWidth / 2))
     )
 
     kSwerveDriveKinematics = SwerveDrive4Kinematics(*(c.translation for c in kSwerveModuleConfigs))
@@ -90,12 +90,12 @@ class Sensors:
 
     kPoseSensorConfigs: tuple[PoseSensorConfig, ...] = (
       # PoseSensorConfig(
-      #   ChassisLocation.Front.name,
+      #   PoseSensorLocation.Front,
       #   Transform3d(
       #     Translation3d(units.inchesToMeters(9.62), units.inchesToMeters(4.12), units.inchesToMeters(21.25)),
       #     Rotation3d(units.degreesToRadians(0), units.degreesToRadians(-22.3), units.degreesToRadians(0.0))
       #   ), kPoseStrategy, kFallbackPoseStrategy, APRIL_TAG_FIELD_LAYOUT
-      # ),
+      # )
     )
 
   class Camera:
