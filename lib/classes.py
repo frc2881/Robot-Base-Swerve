@@ -81,6 +81,7 @@ class SwerveModuleConstants:
   drivingMotorCurrentLimit: int
   drivingMotorPID: PID
   drivingEncoderPositionConversionFactor: float
+  drivingMotorVelocityFeedForward: float
   turningMotorCurrentLimit: int
   turningMotorPID: PID
   turningEncoderPositionConversionFactor: float

@@ -43,21 +43,21 @@ class Subsystems:
     kPathFindingConstraints = PathConstraints(2.4, 1.6, units.degreesToRadians(540), units.degreesToRadians(720))
 
     _wheelDiameter: units.meters = units.inchesToMeters(3.0)
-    kWheelBevelGearTeeth: int = 45
-    kWheelSpurGearTeeth: int = 22
-    kWheelBevelPinionTeeth: int = 15
-    kDrivingMotorFreeSpeed: units.revolutions_per_minute = 5676
-    kDrivingMotorPinionTeeth: int = 14
+    _wheelBevelGearTeeth: int = 45
+    _wheelSpurGearTeeth: int = 22
+    _wheelBevelPinionTeeth: int = 15
+    _drivingMotorFreeSpeed: units.revolutions_per_minute = 5676
+    _drivingMotorPinionTeeth: int = 14
 
-    _drivingMotorReduction: float = (kWheelBevelGearTeeth * kWheelSpurGearTeeth) / (kDrivingMotorPinionTeeth * kWheelBevelPinionTeeth)
-    kDrivingMotorFreeSpeedRps: float = kDrivingMotorFreeSpeed / 60
-    kDriveWheelFreeSpeedRps: float = (kDrivingMotorFreeSpeedRps * (_wheelDiameter * math.pi)) / _drivingMotorReduction
+    _drivingMotorReduction: float = (_wheelBevelGearTeeth * _wheelSpurGearTeeth) / (_drivingMotorPinionTeeth * _wheelBevelPinionTeeth)
+    _driveWheelFreeSpeedRps: float = ((_drivingMotorFreeSpeed / 60) * (_wheelDiameter * math.pi)) / _drivingMotorReduction
     
     _swerveModuleConstants = SwerveModuleConstants(
       drivingMotorControllerType = MotorControllerType.SparkMax,
       drivingMotorCurrentLimit = 80,
       drivingEncoderPositionConversionFactor = (_wheelDiameter * math.pi) / _drivingMotorReduction,
       drivingMotorPID = PID(0.04, 0, 0),
+      drivingMotorVelocityFeedForward = 1 / _driveWheelFreeSpeedRps,
       turningMotorCurrentLimit = 20,
       turningEncoderPositionConversionFactor = 2 * math.pi,
       turningMotorPID = PID(1, 0, 0),

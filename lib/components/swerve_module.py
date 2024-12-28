@@ -31,6 +31,7 @@ class SwerveModule:
     (self._drivingMotorConfig.closedLoop
       .setFeedbackSensor(ClosedLoopConfig.FeedbackSensor.kPrimaryEncoder)
       .pid(*self._config.constants.drivingMotorPID)
+      .velocityFF(self._config.constants.drivingMotorVelocityFeedForward)
       .outputRange(-1.0, 1.0))
     utils.setSparkConfig(
       self._drivingMotor.configure(
