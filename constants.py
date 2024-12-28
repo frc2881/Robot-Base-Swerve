@@ -21,19 +21,19 @@ class Subsystems:
 
     kTranslationSpeedMax: units.meters_per_second = 4.8
     kRotationSpeedMax: units.radians_per_second = 4 * math.pi  # type: ignore
-
+    
     kInputLimitDemo: units.percent = 0.5
     kInputRateLimitDemo: units.percent = 0.33
 
-    kDriftCorrectionThetaControllerPID = PID(0.01, 0, 0)
-    kDriftCorrectionThetaControllerPositionTolerance: float = 0.5
-    kDriftCorrectionThetaControllerVelocityTolerance: float = 0.5
+    kDriftCorrectionControllerPID = PID(0.01, 0, 0)
+    kDriftCorrectionPositionTolerance: float = 0.5
+    kDriftCorrectionVelocityTolerance: float = 0.5
 
-    kTargetAlignmentThetaControllerPID = PID(0.075, 0, 0)
-    kTargetAlignmentThetaControllerPositionTolerance: float = 1.0
-    kTargetAlignmentThetaControllerVelocityTolerance: float = 1.0
+    kTargetAlignmentControllerPID = PID(0.075, 0, 0)
+    kTargetAlignmentPositionTolerance: float = 1.0
+    kTargetAlignmentVelocityTolerance: float = 1.0
     kTargetAlignmentCarpetFrictionCoeff: float = 0.2
-    kTargetAlignmentHeadingInversion: units.degrees = 180.0
+    kTargetAlignmentHeadingAdjustment: units.degrees = 180.0
 
     kPathPlannerRobotConfig = PATHPLANNER_ROBOT_CONFIG
     kPathPlannerController = PPHolonomicDriveController(
@@ -46,8 +46,8 @@ class Subsystems:
     _wheelBevelGearTeeth: int = 45
     _wheelSpurGearTeeth: int = 22
     _wheelBevelPinionTeeth: int = 15
-    _drivingMotorFreeSpeed: units.revolutions_per_minute = 5676
     _drivingMotorPinionTeeth: int = 14
+    _drivingMotorFreeSpeed: units.revolutions_per_minute = 5676
 
     _drivingMotorReduction: float = (_wheelBevelGearTeeth * _wheelSpurGearTeeth) / (_drivingMotorPinionTeeth * _wheelBevelPinionTeeth)
     _driveWheelFreeSpeedRps: float = ((_drivingMotorFreeSpeed / 60) * (_wheelDiameter * math.pi)) / _drivingMotorReduction
