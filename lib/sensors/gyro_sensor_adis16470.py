@@ -1,38 +1,51 @@
 from commands2 import Command, cmd
-from wpilib import SmartDashboard, RobotBase
+from wpilib import ADIS16470_IMU, SPI, SmartDashboard, RobotBase
 from wpimath import units
 from wpimath.geometry import Rotation2d, Pose2d
-from navx import AHRS
 from .. import logger, utils
 
-class GyroSensor_NAVX2():
+class GyroSensor_ADIS16470():
   def __init__(
-      self,
-      comType: AHRS.NavXComType
+      self, 
+      spiPort: SPI.Port,
+      imuAxisYaw: ADIS16470_IMU.IMUAxis,
+      imuAxisPitch: ADIS16470_IMU.IMUAxis,
+      imuAxisRoll: ADIS16470_IMU.IMUAxis,
+      initCalibrationTime: ADIS16470_IMU.CalibrationTime,
+      commandCalibrationTime: ADIS16470_IMU.CalibrationTime,
+      commandCalibrationDelay: units.seconds
     ) -> None:
-    self._gyro = AHRS(comType)
+    self._gyro = ADIS16470_IMU(
+      imuAxisYaw,
+      imuAxisPitch,
+      imuAxisRoll,
+      spiPort,
+      initCalibrationTime
+    )
+    self._commandCalibrationTime = commandCalibrationTime
+    self._commandCalibrationDelay = commandCalibrationDelay
 
     self._baseKey = f'Robot/Sensors/Gyro'
 
     utils.addRobotPeriodic(self._updateTelemetry)
-  
+
   def getHeading(self) -> units.degrees:
-    return -utils.wrapAngle(self._gyro.getAngle())
+    return utils.wrapAngle(self._gyro.getAngle())
   
   def getRotation(self) -> Rotation2d:
     return Rotation2d.fromDegrees(self.getHeading())
   
   def getPitch(self) -> units.degrees:
-    return self._gyro.getPitch()
+    return utils.wrapAngle(self._gyro.getAngle(self._gyro.getPitchAxis()))
   
   def getRoll(self) -> units.degrees:
-    return self._gyro.getRoll()
+    return utils.wrapAngle(self._gyro.getAngle(self._gyro.getRollAxis()))
   
   def getTurnRate(self) -> units.degrees_per_second:
     return self._gyro.getRate()
   
-  def _reset(self, heading: units.degrees = 0) -> None:
-    self._gyro.setAngleAdjustment(-heading if heading != 0 else 0)
+  def _reset(self, heading: units.degrees) -> None:
+    self._gyro.setGyroAngle(self._gyro.getYawAxis(), heading)
     self._gyro.reset()
 
   def resetRobotToField(self, robotPose: Pose2d) -> None:
@@ -40,10 +53,11 @@ class GyroSensor_NAVX2():
 
   def resetCommand(self) -> Command:
     return cmd.runOnce(self._reset).ignoringDisable(True).withName("GyroSensor:Reset")
-
+  
   def _calibrate(self) -> None:
     if RobotBase.isReal():
-      pass # NO-OP as navX2 currently does automatic calibration
+      self._gyro.configCalTime(self._commandCalibrationTime)
+      self._gyro.calibrate()
 
   def calibrateCommand(self) -> Command:
     return cmd.sequence(
@@ -53,7 +67,7 @@ class GyroSensor_NAVX2():
           self._calibrate()
         ]
       ),
-      cmd.waitSeconds(0.2),
+      cmd.waitSeconds(self._commandCalibrationDelay),
       cmd.runOnce(
         lambda: SmartDashboard.putBoolean(f'{self._baseKey}/IsCalibrating', False)
       )

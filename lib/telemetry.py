@@ -1,6 +1,6 @@
 import math
 from wpilib import Timer, DriverStation, RobotController, SmartDashboard, LiveWindow
-from lib import utils
+from . import logger, utils
 
 def start() -> None:
   utils.addRobotPeriodic(_updateRobotInfo, 1.0, 0.25)

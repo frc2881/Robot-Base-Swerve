@@ -2,20 +2,26 @@ from typing import Any, Callable, Tuple, TypeVar
 import math
 import numpy
 import json
+from commands2 import TimedCommandRobot
 import wpilib
 import wpimath
 from wpimath import units
 from wpimath.geometry import Pose2d, Translation2d
 from wpilib import DriverStation
 from rev import SparkBase, SparkBaseConfig, REVLibError
-from lib import logger
-from lib.classes import Alliance, RobotMode, RobotState
-import robot
+from . import logger
+from .classes import Alliance, RobotMode, RobotState
 
 T = TypeVar("T")
 
+robot: TimedCommandRobot = None
+
+def setRobotInstance(instance: TimedCommandRobot) -> None:
+  global robot
+  robot = instance
+
 def addRobotPeriodic(callback: Callable[[], None], period: units.seconds = 0.02, offset: units.seconds = 0) -> None:
-  robot.Robot.getInstance().addPeriodic(callback, period, offset)
+  robot.addPeriodic(callback, period, offset)
 
 def getRobotState() -> RobotState:
   if wpilib.RobotState.isEnabled():

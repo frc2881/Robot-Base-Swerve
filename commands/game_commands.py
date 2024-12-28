@@ -1,9 +1,9 @@
 from typing import TYPE_CHECKING
 from commands2 import Command, cmd
 from wpilib import RobotBase
-if TYPE_CHECKING: from robot_container import RobotContainer
-from lib import utils
+from lib import logger, utils
 from lib.classes import ControllerRumbleMode, ControllerRumblePattern
+if TYPE_CHECKING: from robot_container import RobotContainer
 import constants
 
 class GameCommands:

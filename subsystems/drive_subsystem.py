@@ -9,7 +9,7 @@ from wpimath.geometry import Rotation2d, Pose2d
 from wpimath.kinematics import ChassisSpeeds, SwerveModulePosition, SwerveModuleState, SwerveDrive4Kinematics
 from pathplannerlib.util import DriveFeedforwards
 from pathplannerlib.util.swerve import SwerveSetpoint, SwerveSetpointGenerator
-from lib import utils, logger
+from lib import logger, utils
 from lib.classes import MotorIdleMode, SpeedMode, DriveOrientation, OptionState, LockState
 from lib.components.swerve_module import SwerveModule
 import constants
@@ -24,7 +24,7 @@ class DriveSubsystem(Subsystem):
     
     self._constants = constants.Subsystems.Drive
 
-    self._swerveModules = tuple(SwerveModule(c, self._constants.SwerveModule) for c in self._constants.kSwerveModuleConfigs)
+    self._swerveModules = tuple(SwerveModule(c) for c in self._constants.kSwerveModuleConfigs)
     
     self._swerveSetpointGenerator = SwerveSetpointGenerator(
       self._constants.kPathPlannerRobotConfig, 
@@ -37,11 +37,7 @@ class DriveSubsystem(Subsystem):
     )
 
     self._isDriftCorrectionActive: bool = False
-    self._driftCorrectionThetaController = PIDController(
-      self._constants.kDriftCorrectionThetaControllerPIDConstants.P, 
-      self._constants.kDriftCorrectionThetaControllerPIDConstants.I, 
-      self._constants.kDriftCorrectionThetaControllerPIDConstants.D
-    )
+    self._driftCorrectionThetaController = PIDController(*self._constants.kDriftCorrectionThetaControllerPID)
     self._driftCorrectionThetaController.enableContinuousInput(-180.0, 180.0)
     self._driftCorrectionThetaController.setTolerance(
       self._constants.kDriftCorrectionThetaControllerPositionTolerance, 
@@ -49,11 +45,7 @@ class DriveSubsystem(Subsystem):
     )
 
     self._isAlignedToTarget: bool = False
-    self._targetAlignmentThetaController = PIDController(
-      self._constants.kTargetAlignmentThetaControllerPIDConstants.P, 
-      self._constants.kTargetAlignmentThetaControllerPIDConstants.I, 
-      self._constants.kTargetAlignmentThetaControllerPIDConstants.D
-    )
+    self._targetAlignmentThetaController = PIDController(*self._constants.kTargetAlignmentThetaControllerPID)
     self._targetAlignmentThetaController.enableContinuousInput(-180.0, 180.0)
     self._targetAlignmentThetaController.setTolerance(
       self._constants.kTargetAlignmentThetaControllerPositionTolerance, 
@@ -153,11 +145,11 @@ class DriveSubsystem(Subsystem):
   def _getSwerveModuleStates(self) -> tuple[SwerveModuleState, ...]:
     return tuple(m.getState() for m in self._swerveModules)
 
-  def getSwerveModulePositions(self) -> tuple[SwerveModulePosition, ...]:
+  def getModulePositions(self) -> tuple[SwerveModulePosition, ...]:
     return tuple(m.getPosition() for m in self._swerveModules)
 
   def getChassisSpeeds(self) -> ChassisSpeeds:
-    return self._constants.kSwerveDriveKinematics.toChassisSpeeds(self._getSwerveModuleStates())
+    return self._constants.kDriveKinematics.toChassisSpeeds(self._getSwerveModuleStates())
 
   def _setIdleMode(self, idleMode: MotorIdleMode) -> None:
     for m in self._swerveModules: m.setIdleMode(idleMode)
@@ -197,7 +189,7 @@ class DriveSubsystem(Subsystem):
       speedRotation = 0
       self._isAlignedToTarget = True
     self._setSwerveModuleStates(
-      self._constants.kSwerveDriveKinematics.toSwerveModuleStates(
+      self._constants.kDriveKinematics.toSwerveModuleStates(
         ChassisSpeeds(0, 0, speedRotation)
       )
     )

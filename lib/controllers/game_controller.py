@@ -3,8 +3,8 @@ from commands2 import Command, cmd
 from commands2.button import CommandXboxController, Trigger
 from wpimath import units
 from wpilib import XboxController
-from lib import utils
-from lib.classes import ControllerRumblePattern
+from .. import logger, utils
+from ..classes import ControllerRumblePattern
 
 class GameController(CommandXboxController):
   def __init__(

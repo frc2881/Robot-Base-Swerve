@@ -1,3 +1,4 @@
+from typing import NamedTuple
 from enum import Enum, IntEnum, auto
 from dataclasses import dataclass
 from wpimath import units
@@ -58,11 +59,66 @@ class ControllerRumblePattern(Enum):
   Short = auto()
   Long = auto()
 
+class LightsMode(Enum):
+  Default = auto()
+  RobotNotReady = auto()
+  VisionNotReady = auto()
+
+class PID(NamedTuple):
+  P: float
+  I: float
+  D: float
+
 class SwerveModuleLocation(IntEnum):
   FrontLeft = 0,
   FrontRight = 1,
   RearLeft = 2,
   RearRight = 3
+
+@dataclass(frozen=True, slots=True)
+class SwerveModuleConstants:
+  drivingMotorControllerType: MotorControllerType
+  drivingMotorCurrentLimit: int
+  drivingMotorPID: PID
+  drivingEncoderPositionConversionFactor: float
+  turningMotorCurrentLimit: int
+  turningMotorPID: PID
+  turningEncoderPositionConversionFactor: float
+
+@dataclass(frozen=True, slots=True)
+class SwerveModuleConfig:
+  location: SwerveModuleLocation
+  drivingMotorCANId: int
+  turningMotorCANId: int
+  turningOffset: units.radians
+  translation: Translation2d
+  constants: SwerveModuleConstants
+
+class DifferentialModuleLocation(IntEnum):
+  LeftFront = 0,
+  LeftCenter = 1,
+  LeftRear = 2,
+  RightFront = 3,
+  RightCenter = 4,
+  RightRear = 5
+
+@dataclass(frozen=True, slots=True)
+class DifferentialModuleConstants:
+  drivingMotorControllerType: MotorControllerType
+  drivingMotorCurrentLimit: int
+  drivingEncoderPositionConversionFactor: float
+
+@dataclass(frozen=True, slots=True)
+class DifferentialModuleConfig:
+  location: DifferentialModuleLocation
+  drivingMotorCANId: int
+  leaderMotorCANId: int | None
+  isInverted: bool
+  constants: DifferentialModuleConstants
+
+class DifferentialDriveModulePositions(NamedTuple):
+  left: float
+  right: float
 
 class PoseSensorLocation(Enum):
   Front = auto(),
@@ -70,22 +126,7 @@ class PoseSensorLocation(Enum):
   Left = auto(),
   Right = auto()
 
-@dataclass(frozen=True)
-class PIDConstants:
-  P: float
-  I: float
-  D: float
-  FF: float
-
-@dataclass(frozen=True)
-class SwerveModuleConfig:
-  location: SwerveModuleLocation
-  drivingMotorCANId: int
-  turningMotorCANId: int
-  turningOffset: units.radians
-  translation: Translation2d
-
-@dataclass(frozen=True)
+@dataclass(frozen=True, slots=True)
 class PoseSensorConfig:
   location: PoseSensorLocation
   cameraTransform: Transform3d
@@ -93,7 +134,7 @@ class PoseSensorConfig:
   fallbackPoseStrategy: PoseStrategy
   aprilTagFieldLayout: AprilTagFieldLayout
 
-@dataclass
+@dataclass(frozen=False, slots=True)
 class TargetInfo:
   distance: units.meters
   heading: units.degrees

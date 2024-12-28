@@ -1,20 +1,14 @@
 #! python3
 
 from commands2 import CommandScheduler, cmd, TimedCommandRobot
-from lib import logger, telemetry
+from lib import logger, telemetry, utils
 from lib.classes import RobotMode
 from robot_container import RobotContainer
 
 class Robot(TimedCommandRobot):
-  _instance: TimedCommandRobot = None
-
-  @staticmethod
-  def getInstance() -> TimedCommandRobot:
-    return Robot._instance
-
   def __init__(self) -> None:
     TimedCommandRobot.__init__(self)
-    Robot._instance = self
+    utils.setRobotInstance(self)
     logger.start()
     telemetry.start()
     self._autoCommand = cmd.none()
