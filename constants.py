@@ -21,7 +21,7 @@ class Subsystems:
 
     kTranslationSpeedMax: units.meters_per_second = 4.8
     kRotationSpeedMax: units.radians_per_second = 4 * math.pi  # type: ignore
-    
+
     kInputLimitDemo: units.percent = 0.5
     kInputRateLimitDemo: units.percent = 0.33
 
