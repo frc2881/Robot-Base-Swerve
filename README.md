@@ -1,6 +1,6 @@
 # Robot-Base-Swerve
 
-[![PyFRC Tests](https://github.com/frc2881/Robot-Base-Swerve/actions/workflows/python-app.yml/badge.svg?branch=2025-dev)](https://github.com/frc2881/Robot-Base-Swerve/actions/workflows/python-app.yml)
+[![PyFRC Tests](https://github.com/frc2881/Robot-Base-Swerve/actions/workflows/python-app.yml/badge.svg?branch=main)](https://github.com/frc2881/Robot-Base-Swerve/actions/workflows/python-app.yml)
 
 ## Installation & Deployment
 * Follow the official documentation for installing Python in your development environment (if Python 3.12 is not already installed): https://docs.wpilib.org/en/stable/docs/zero-to-robot/step-2/python-setup.html
