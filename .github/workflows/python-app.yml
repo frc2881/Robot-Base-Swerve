@@ -15,22 +15,20 @@ jobs:
     steps:
     - name: Checkout code from target branch
       uses: actions/checkout@v4
-    - name: Init and update git submodules
-      run: |
-        git submodule update --init
     - name: Set up Python 3.x environment
       uses: actions/setup-python@v3
       with:
         python-version: "3.13"
-    - name: Install and sync robotpy and project dependencies
+    - name: Update, install and sync robotpy and project dependencies
       run: |
         python -m pip install --upgrade pip
+        python ./scripts/update.py
         python ./scripts/install.py
         python ./scripts/sync.py
     - name: Wait for installation to finalize
       uses: GuillaumeFalourd/wait-sleep-action@v1
       with:
         time: "30"
-    - name: Run robotpy tests
+    - name: Run PyFRC tests
       run: |
         python -m robotpy test
