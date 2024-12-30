@@ -15,6 +15,9 @@ jobs:
     steps:
     - name: Checkout code from target branch
       uses: actions/checkout@v4
+    - name: Init and update git submodules
+      run: |
+        git submodule update --init
     - name: Set up Python 3.x environment
       uses: actions/setup-python@v3
       with:
