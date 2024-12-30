@@ -9,25 +9,25 @@ from wpimath.estimator import SwerveDrive4PoseEstimator
 from photonlibpy.photonPoseEstimator import PoseStrategy
 from lib.sensors.pose_sensor import PoseSensor
 from lib.classes import TargetInfo
-from lib import utils, logger
+from lib import logger, utils
 import constants
 
 class LocalizationSubsystem(Subsystem):
   def __init__(
       self,
-      poseSensors: list[PoseSensor],
+      poseSensors: tuple[PoseSensor, ...],
       getGyroRotation: Callable[[], Rotation2d],
-      getSwerveModulePositions: Callable[[], tuple[SwerveModulePosition, ...]]
+      getModulePositions: Callable[[], tuple[SwerveModulePosition, ...]]
     ) -> None:
     super().__init__()
     self._poseSensors = poseSensors
     self._getGyroRotation = getGyroRotation
-    self._getSwerveModulePositions = getSwerveModulePositions
+    self._getModulePositions = getModulePositions
 
     self._poseEstimator = SwerveDrive4PoseEstimator(
-      constants.Subsystems.Drive.kSwerveDriveKinematics,
+      constants.Subsystems.Drive.kDriveKinematics,
       self._getGyroRotation(),
-      self._getSwerveModulePositions(),
+      self._getModulePositions(),
       Pose2d()
     )
 
@@ -35,7 +35,6 @@ class LocalizationSubsystem(Subsystem):
     self._targetPose = Pose3d()
     self._targetInfo = TargetInfo(0, 0, 0)
     self._currentAlliance = None
-    self._isVisionActive = False
 
     SmartDashboard.putNumber("Robot/Game/Field/Length", constants.Game.Field.kLength)
     SmartDashboard.putNumber("Robot/Game/Field/Width", constants.Game.Field.kWidth)
@@ -51,7 +50,7 @@ class LocalizationSubsystem(Subsystem):
     pass
 
   def _updatePose(self) -> None:
-    self._poseEstimator.update(self._getGyroRotation(), self._getSwerveModulePositions())
+    self._poseEstimator.update(self._getGyroRotation(), self._getModulePositions())
     for poseSensor in self._poseSensors:
       estimatedRobotPose = poseSensor.getEstimatedRobotPose()
       if estimatedRobotPose is not None:
@@ -61,14 +60,12 @@ class LocalizationSubsystem(Subsystem):
             self._poseEstimator.addVisionMeasurement(
               pose,
               estimatedRobotPose.timestampSeconds,
-              constants.Sensors.Pose.kMultiTagStandardDeviations
+              constants.Subsystems.Localization.kMultiTagStandardDeviations
             )
-            self._isVisionActive = True
           else:
             for target in estimatedRobotPose.targetsUsed:
-              if utils.isValueInRange(target.getPoseAmbiguity(), 0, constants.Sensors.Pose.kMaxPoseAmbiguity):
-                self._poseEstimator.addVisionMeasurement(pose, estimatedRobotPose.timestampSeconds, constants.Sensors.Pose.kSingleTagStandardDeviations)
-                self._isVisionActive = True
+              if utils.isValueInRange(target.getPoseAmbiguity(), 0, constants.Subsystems.Localization.kMaxPoseAmbiguity):
+                self._poseEstimator.addVisionMeasurement(pose, estimatedRobotPose.timestampSeconds, constants.Subsystems.Localization.kSingleTagStandardDeviations)
                 break
     self._pose = self._poseEstimator.getEstimatedPosition()
 
@@ -76,8 +73,7 @@ class LocalizationSubsystem(Subsystem):
     return self._pose
 
   def resetPose(self, pose: Pose2d) -> None:
-    if not self._isVisionActive:
-      self._poseEstimator.resetPosition(self._getGyroRotation(), self._getSwerveModulePositions(), pose)
+    self._poseEstimator.resetPose(pose)
 
   def hasVisionTargets(self) -> bool:
     for poseSensor in self._poseSensors:
