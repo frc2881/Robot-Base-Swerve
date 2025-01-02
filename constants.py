@@ -60,7 +60,7 @@ class Subsystems:
       drivingMotorVelocityFeedForward = 1 / _driveWheelFreeSpeedRps,
       turningMotorCurrentLimit = 20,
       turningEncoderPositionConversionFactor = 2 * math.pi,
-      turningMotorPID = PID(1, 0, 0),
+      turningMotorPID = PID(1, 0, 0)
     )
 
     kSwerveModuleConfigs: tuple[SwerveModuleConfig, ...] = (
