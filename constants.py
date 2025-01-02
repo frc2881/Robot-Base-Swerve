@@ -22,26 +22,6 @@ class Subsystems:
     kTranslationSpeedMax: units.meters_per_second = 4.8
     kRotationSpeedMax: units.radians_per_second = 4 * math.pi  # type: ignore
 
-    kInputLimitDemo: units.percent = 0.5
-    kInputRateLimitDemo: units.percent = 0.33
-
-    kDriftCorrectionControllerPID = PID(0.01, 0, 0)
-    kDriftCorrectionPositionTolerance: float = 0.5
-    kDriftCorrectionVelocityTolerance: float = 0.5
-
-    kTargetAlignmentControllerPID = PID(0.075, 0, 0)
-    kTargetAlignmentPositionTolerance: float = 1.0
-    kTargetAlignmentVelocityTolerance: float = 1.0
-    kTargetAlignmentCarpetFrictionCoeff: float = 0.2
-    kTargetAlignmentHeadingAdjustment: units.degrees = 180.0
-
-    kPathPlannerRobotConfig = PATHPLANNER_ROBOT_CONFIG
-    kPathPlannerController = PPHolonomicDriveController(
-      translation_constants = PIDConstants(5.0, 0, 0),
-      rotation_constants = PIDConstants(5.0, 0, 0)
-    )
-    kPathFindingConstraints = PathConstraints(2.4, 1.6, units.degreesToRadians(540), units.degreesToRadians(720))
-
     _swerveModuleConstants = SwerveModuleConstants(
       wheelDiameter = units.inchesToMeters(3.0),
       wheelBevelGearTeeth = 45,
@@ -64,6 +44,26 @@ class Subsystems:
     )
 
     kDriveKinematics = SwerveDrive4Kinematics(*(c.translation for c in kSwerveModuleConfigs))
+
+    kPathPlannerRobotConfig = PATHPLANNER_ROBOT_CONFIG
+    kPathPlannerController = PPHolonomicDriveController(
+      translation_constants = PIDConstants(5.0, 0, 0),
+      rotation_constants = PIDConstants(5.0, 0, 0)
+    )
+    kPathFindingConstraints = PathConstraints(2.4, 1.6, units.degreesToRadians(540), units.degreesToRadians(720))
+
+    kDriftCorrectionControllerPID = PID(0.01, 0, 0)
+    kDriftCorrectionPositionTolerance: float = 0.5
+    kDriftCorrectionVelocityTolerance: float = 0.5
+
+    kTargetAlignmentControllerPID = PID(0.075, 0, 0)
+    kTargetAlignmentPositionTolerance: float = 1.0
+    kTargetAlignmentVelocityTolerance: float = 1.0
+    kTargetAlignmentCarpetFrictionCoeff: float = 0.2
+    kTargetAlignmentHeadingAdjustment: units.degrees = 180.0
+
+    kInputLimitDemo: units.percent = 0.5
+    kInputRateLimitDemo: units.percent = 0.33
 
   class Localization:
     kSingleTagStandardDeviations: tuple[float, ...] = (1.0, 1.0, 2.0)
