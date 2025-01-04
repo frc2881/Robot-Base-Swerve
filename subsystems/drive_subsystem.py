@@ -8,7 +8,6 @@ from wpimath.filter import SlewRateLimiter
 from wpimath.geometry import Rotation2d, Pose2d
 from wpimath.kinematics import ChassisSpeeds, SwerveModulePosition, SwerveModuleState, SwerveDrive4Kinematics
 from pathplannerlib.util import DriveFeedforwards
-from pathplannerlib.util.swerve import SwerveSetpoint, SwerveSetpointGenerator
 from lib import logger, utils
 from lib.classes import MotorIdleMode, SpeedMode, DriveOrientation, OptionState, LockState
 from lib.components.swerve_module import SwerveModule
@@ -25,16 +24,6 @@ class DriveSubsystem(Subsystem):
     self._constants = constants.Subsystems.Drive
 
     self._swerveModules = tuple(SwerveModule(c) for c in self._constants.kSwerveModuleConfigs)
-    
-    self._swerveSetpointGenerator = SwerveSetpointGenerator(
-      self._constants.kPathPlannerRobotConfig, 
-      self._constants.kRotationSpeedMax
-    )
-    self._previousSwerveSetpoint = SwerveSetpoint(
-      self.getChassisSpeeds(), 
-      self._getSwerveModuleStates(), 
-      DriveFeedforwards.zeros(self._constants.kPathPlannerRobotConfig.numModules)
-    )
 
     self._isDriftCorrectionActive: bool = False
     self._driftCorrectionController = PIDController(*self._constants.kDriftCorrectionControllerPID)
@@ -105,8 +94,11 @@ class DriveSubsystem(Subsystem):
     ).withName("DriveSubsystem:Drive")
 
   def drive(self, chassisSpeeds: ChassisSpeeds, driveFeedforwards: DriveFeedforwards = None) -> None:
-    self.previousSetpoint = self._swerveSetpointGenerator.generateSetpoint(self._previousSwerveSetpoint, chassisSpeeds, 0.02)
-    self._setSwerveModuleStates(self._previousSwerveSetpoint.module_states)
+    self._setSwerveModuleStates(
+      self._constants.kDriveKinematics.toSwerveModuleStates(
+        ChassisSpeeds.discretize(chassisSpeeds, 0.02)
+      )
+    )
 
   def _drive(self, inputX: units.percent, inputY: units.percent, inputRotation: units.percent) -> None:
     if self._driftCorrection == OptionState.Enabled:
