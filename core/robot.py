@@ -1,50 +1,54 @@
 from commands2 import Command, cmd
-from wpilib import DriverStation, SendableChooser, SmartDashboard
+from wpilib import DriverStation, SmartDashboard
 from lib import logger, utils
 from lib.controllers.game_controller import GameController
 from lib.sensors.gyro_sensor_navx2 import GyroSensor_NAVX2
 from lib.sensors.pose_sensor import PoseSensor
-from commands.auto_commands import AutoCommands
-from commands.game_commands import GameCommands
-from subsystems.drive_subsystem import DriveSubsystem
-from subsystems.localization_subsystem import LocalizationSubsystem
-import constants
+from core.commands.auto import AutoCommands
+from core.commands.game import GameCommands
+from core.subsystems.drive import DriveSubsystem
+from core.services.localization import LocalizationService
+import core.constants as constants
 
-class RobotContainer:
+class RobotCore:
   def __init__(self) -> None:
-    self._setupSensors()
-    self._setupSubsystems()
-    self._setupControllers()
-    self._setupCommands()
-    self._setupTriggers()
-    utils.addRobotPeriodic(self._updateTelemetry)
+    self._initSensors()
+    self._initSubsystems()
+    self._initServices()
+    self._initControllers()
+    self._initCommands()
+    self._initTriggers()
+    utils.addRobotPeriodic(self._periodic)
 
-  def _setupSensors(self) -> None:
+  def _initSensors(self) -> None:
     self.gyroSensor = GyroSensor_NAVX2(constants.Sensors.Gyro.NAVX2.kComType)
     self.poseSensors = tuple(PoseSensor(c) for c in constants.Sensors.Pose.kPoseSensorConfigs)
     SmartDashboard.putString("Robot/Sensors/Camera/Streams", utils.toJson(constants.Sensors.Camera.kStreams))
     
-  def _setupSubsystems(self) -> None:
+  def _initSubsystems(self) -> None:
     self.driveSubsystem = DriveSubsystem(self.gyroSensor.getHeading)
-    self.localizationSubsystem = LocalizationSubsystem(self.poseSensors, self.gyroSensor.getRotation, self.driveSubsystem.getModulePositions)
     
-  def _setupControllers(self) -> None:
+  def _initServices(self) -> None:
+    self.localizationService = LocalizationService(self.gyroSensor.getRotation, self.driveSubsystem.getModulePositions, self.poseSensors)
+
+  def _initControllers(self) -> None:
     self.driverController = GameController(constants.Controllers.kDriverControllerPort, constants.Controllers.kInputDeadband)
     self.operatorController = GameController(constants.Controllers.kOperatorControllerPort, constants.Controllers.kInputDeadband)
     DriverStation.silenceJoystickConnectionWarning(True)
 
-  def _setupCommands(self) -> None:
+  def _initCommands(self) -> None:
     self.gameCommands = GameCommands(self)
     self.autoCommands = AutoCommands(self)
 
-  def _setupTriggers(self) -> None:
+  def _initTriggers(self) -> None:
     self.driveSubsystem.setDefaultCommand(
       self.driveSubsystem.driveCommand(
         self.driverController.getLeftY,
         self.driverController.getLeftX,
         self.driverController.getRightX
     ))
-    self.driverController.rightStick().whileTrue(self.gameCommands.alignRobotToTargetCommand())
+
+    # self.driverController.rightStick().whileTrue(cmd.none())
     self.driverController.leftStick().whileTrue(self.driveSubsystem.lockCommand())
     # self.driverController.rightTrigger().whileTrue(cmd.none())
     # self.driverController.rightBumper().whileTrue(cmd.none())
@@ -76,11 +80,8 @@ class RobotContainer:
     # self.operatorController.start().whileTrue(cmd.none())
     # self.operatorController.back().whileTrue(cmd.none())
 
-  def _robotHasInitialZeroResets(self) -> bool:
-    return utils.isCompetitionMode() or True
-
-  def _updateTelemetry(self) -> None:
-    SmartDashboard.putBoolean("Robot/HasInitialZeroResets", self._robotHasInitialZeroResets())
+  def _periodic(self) -> None:
+    self._updateTelemetry()
 
   def getAutoCommand(self) -> Command:
     return self.autoCommands.getSelected()
@@ -89,7 +90,7 @@ class RobotContainer:
     self.resetRobot()
 
   def autoExit(self) -> None: 
-    self.gyroSensor.resetRobotToField(self.localizationSubsystem.getPose())
+    self.gyroSensor.resetRobotToField(self.localizationService.getRobotPose())
 
   def teleopInit(self) -> None:
     self.resetRobot()
@@ -99,3 +100,9 @@ class RobotContainer:
 
   def resetRobot(self) -> None:
     self.driveSubsystem.reset()
+
+  def _robotHasInitialZeroResets(self) -> bool:
+    return utils.isCompetitionMode() or True
+
+  def _updateTelemetry(self) -> None:
+    SmartDashboard.putBoolean("Robot/HasInitialZeroResets", self._robotHasInitialZeroResets())

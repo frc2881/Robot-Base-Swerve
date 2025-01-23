@@ -1,5 +1,5 @@
 [tool.robotpy]
-robotpy_version = "2025.1.1.1"
+robotpy_version = "2025.2.1.0"
 robotpy_extras = [
   "commands2",
   "navx",
@@ -8,6 +8,6 @@ robotpy_extras = [
   "sim"
 ]
 requires = [
-  "photonlibpy==2025.0.0b8",
+  "photonlibpy",
   "numpy"
 ]

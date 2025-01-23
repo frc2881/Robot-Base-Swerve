@@ -2,23 +2,27 @@ from typing import TYPE_CHECKING
 from commands2 import Command, cmd
 from wpilib import RobotBase
 from lib import logger, utils
-from lib.classes import ControllerRumbleMode, ControllerRumblePattern
-if TYPE_CHECKING: from robot_container import RobotContainer
-import constants
+from lib.classes import ControllerRumbleMode, ControllerRumblePattern, TargetAlignmentMode
+if TYPE_CHECKING: from core.robot import RobotCore
+from core.classes import TargetAlignmentLocation, TargetType
+import core.constants as constants
 
 class GameCommands:
   def __init__(
       self,
-      robot: "RobotContainer"
+      robot: "RobotCore"
     ) -> None:
     self._robot = robot
 
-  def alignRobotToTargetCommand(self) -> Command:
+  def alignRobotToTargetCommand(self, targetAlignmentMode: TargetAlignmentMode, targetAlignmentLocation: TargetAlignmentLocation = TargetAlignmentLocation.Default, targetType: TargetType = TargetType.Default) -> Command:
     return cmd.sequence(
       cmd.parallel(
         self._robot.driveSubsystem.alignToTargetCommand(
-          self._robot.localizationSubsystem.getPose, 
-          self._robot.localizationSubsystem.getTargetHeading
+          self._robot.localizationService.getRobotPose, 
+          self._robot.localizationService.getTargetPose,
+          targetAlignmentMode,
+          targetAlignmentLocation,
+          targetType
         ),
         self.rumbleControllersCommand(ControllerRumbleMode.Operator, ControllerRumblePattern.Short),
         cmd.sequence(
