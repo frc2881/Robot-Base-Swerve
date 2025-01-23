@@ -1,6 +1,7 @@
 from commands2 import Command, cmd
 from wpilib import DriverStation, SmartDashboard
 from lib import logger, utils
+from lib.classes import TargetAlignmentMode
 from lib.controllers.game_controller import GameController
 from lib.sensors.gyro_sensor_navx2 import GyroSensor_NAVX2
 from lib.sensors.pose_sensor import PoseSensor
@@ -8,6 +9,7 @@ from core.commands.auto import AutoCommands
 from core.commands.game import GameCommands
 from core.subsystems.drive import DriveSubsystem
 from core.services.localization import LocalizationService
+from core.classes import TargetAlignmentLocation, TargetType
 import core.constants as constants
 
 class RobotCore:
@@ -48,7 +50,7 @@ class RobotCore:
         self.driverController.getRightX
     ))
 
-    # self.driverController.rightStick().whileTrue(cmd.none())
+    self.driverController.rightStick().whileTrue(self.gameCommands.alignRobotToTargetCommand(TargetAlignmentMode.Translation, TargetAlignmentLocation.Center))
     self.driverController.leftStick().whileTrue(self.driveSubsystem.lockCommand())
     # self.driverController.rightTrigger().whileTrue(cmd.none())
     # self.driverController.rightBumper().whileTrue(cmd.none())
