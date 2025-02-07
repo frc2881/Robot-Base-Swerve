@@ -116,7 +116,7 @@ class DriveSubsystem(Subsystem):
 
     speedX: units.meters_per_second = inputX * self._constants.kTranslationSpeedMax
     speedY: units.meters_per_second = inputY * self._constants.kTranslationSpeedMax
-    speedRotation: units.radians_per_second = inputRotation * self._constants.kRotationSpeedMax # type: ignore
+    speedRotation: units.radians_per_second = inputRotation * self._constants.kRotationSpeedMax
     
     if self._orientation == DriveOrientation.Field:
       self.drive(ChassisSpeeds.fromFieldRelativeSpeeds(speedX, speedY, speedRotation, Rotation2d.fromDegrees(self._getGyroHeading())))
@@ -129,7 +129,8 @@ class DriveSubsystem(Subsystem):
         ChassisSpeeds.discretize(chassisSpeeds, 0.02)
       )
     )
-    self.clearTargetAlignment()
+    if chassisSpeeds.vx > 0 or chassisSpeeds.vy > 0:
+      self.clearTargetAlignment()
 
   def _setSwerveModuleStates(self, swerveModuleStates: tuple[SwerveModuleState, ...]) -> None:
     SwerveDrive4Kinematics.desaturateWheelSpeeds(swerveModuleStates, self._constants.kTranslationSpeedMax)

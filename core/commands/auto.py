@@ -22,6 +22,7 @@ class AutoCommands:
     self._robot = robot
 
     self._paths = { path: PathPlannerPath.fromPathFile(path.name) for path in AutoPath }
+    self._selectedAutoCommand = cmd.none()
 
     AutoBuilder.configure(
       self._robot.localizationService.getRobotPose, 
@@ -36,11 +37,14 @@ class AutoCommands:
 
     self._autoCommandChooser = SendableChooser()
     self._autoCommandChooser.setDefaultOption("None", cmd.none)
+    
     self._autoCommandChooser.addOption("[0]_1_", self.auto_0_1_)
+    
+    self._autoCommandChooser.onChange(lambda autoCommand: setattr(self, "_selectedAutoCommand", autoCommand()))
     SmartDashboard.putData("Robot/Auto/Command", self._autoCommandChooser)
 
   def getSelected(self) -> Command:
-    return self._autoCommandChooser.getSelected()()
+    return self._selectedAutoCommand
   
   def _reset(self, path: AutoPath) -> Command:
     return cmd.sequence(
@@ -49,15 +53,15 @@ class AutoCommands:
     )
   
   def _move(self, path: AutoPath) -> Command:
-    return cmd.sequence(
-      AutoBuilder.followPath(self._paths.get(path))
-    ).withTimeout(
+    return AutoBuilder.followPath(self._paths.get(path)).withTimeout(
       constants.Game.Commands.kAutoMoveTimeout
     )
   
-  def _alignToTarget(self) -> Command:
-    return cmd.sequence(self._robot.gameCommands.alignRobotToTargetCommand(TargetAlignmentMode.Translation, TargetAlignmentLocation.Left))
-
+  def _alignToTarget(self, targetAlignmentLocation: TargetAlignmentLocation) -> Command:
+    return self._robot.gameCommands.alignRobotToTargetCommand(TargetAlignmentMode.Translation, targetAlignmentLocation).withTimeout(
+      constants.Game.Commands.kAutoTargetAlignmentTimeout
+    )
+  
   def auto_0_1_(self) -> Command:
     return cmd.sequence(
       self._reset(AutoPath.Move1),

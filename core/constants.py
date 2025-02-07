@@ -22,7 +22,7 @@ class Subsystems:
     kWheelBase: units.meters = units.inchesToMeters(24.5)
 
     kTranslationSpeedMax: units.meters_per_second = 4.8
-    kRotationSpeedMax: units.radians_per_second = 4 * math.pi  # type: ignore
+    kRotationSpeedMax: units.radians_per_second = 4 * math.pi
 
     kInputLimitDemo: units.percent = 0.5
     kInputRateLimitDemo: units.percent = 0.33
@@ -73,9 +73,9 @@ class Subsystems:
 
 class Services:
   class Localization:
-    kStateStandardDeviations: tuple[float, float, float] = (0.05, 0.05, units.degreesToRadians(5))
-    kVisionMultiTagStandardDeviations: tuple[float, float, float] = (0.1, 0.1, units.degreesToRadians(10))
-    kVisionDefaultStandardDeviations: tuple[float, float, float] = (0.5, 0.5, units.degreesToRadians(15))
+    kStateStandardDeviations: tuple[float, float, float] = (0.1, 0.1, units.degreesToRadians(5))
+    kVisionMultiTagStandardDeviations: tuple[float, float, float] = (0.2, 0.2, units.degreesToRadians(10))
+    kVisionDefaultStandardDeviations: tuple[float, float, float] = (0.5, 0.5, units.degreesToRadians(25))
     kVisionMaxPoseAmbiguity: units.percent = 0.2
 
 class Sensors: 
@@ -111,6 +111,7 @@ class Controllers:
 class Game:
   class Commands:
     kAutoMoveTimeout: units.seconds = 4.0
+    kAutoTargetAlignmentTimeout: units.seconds = 2.0
 
   class Field:
     kAprilTagFieldLayout = APRIL_TAG_FIELD_LAYOUT
@@ -157,9 +158,9 @@ class Game:
         },
         TargetType.Station: {
           TargetAlignmentLocation.Default: Transform3d(),
-          TargetAlignmentLocation.Center: Transform3d(units.inchesToMeters(0), 0, 0, Rotation3d()),
-          TargetAlignmentLocation.Left: Transform3d(units.inchesToMeters(0), units.inchesToMeters(-30), 0, Rotation3d()),
-          TargetAlignmentLocation.Right: Transform3d(units.inchesToMeters(0), units.inchesToMeters(30), 0, Rotation3d())
+          TargetAlignmentLocation.Center: Transform3d(units.inchesToMeters(28), 0, 0, Rotation3d()),
+          TargetAlignmentLocation.Left: Transform3d(units.inchesToMeters(28), units.inchesToMeters(-24), 0, Rotation3d()),
+          TargetAlignmentLocation.Right: Transform3d(units.inchesToMeters(28), units.inchesToMeters(24), 0, Rotation3d())
         },
         TargetType.Processor: {
           TargetAlignmentLocation.Default: Transform3d(),
