@@ -8,8 +8,9 @@ from pathplannerlib.config import RobotConfig
 from pathplannerlib.controller import PPHolonomicDriveController, PIDConstants
 from pathplannerlib.pathfinding import PathConstraints
 from photonlibpy.photonPoseEstimator import PoseStrategy
+from rev import SparkLowLevel
 from lib import logger, utils
-from lib.classes import Alliance, PID, Tolerance, MotorControllerType, SwerveModuleConstants, SwerveModuleConfig, SwerveModuleLocation, PoseSensorConfig, DriftCorrectionConstants, TargetAlignmentConstants
+from lib.classes import Alliance, PID, Tolerance, SwerveModuleConstants, SwerveModuleConfig, SwerveModuleLocation, PoseSensorConfig, DriftCorrectionConstants, TargetAlignmentConstants
 from core.classes import Target, TargetType, TargetAlignmentLocation
 
 APRIL_TAG_FIELD_LAYOUT = AprilTagFieldLayout().loadField(AprilTagField.k2025Reefscape)
@@ -33,7 +34,8 @@ class Subsystems:
       wheelBevelPinionTeeth = 15,
       drivingMotorPinionTeeth = 14,
       drivingMotorFreeSpeed = 5676,
-      drivingMotorControllerType = MotorControllerType.SparkMax,
+      drivingMotorControllerType = SparkLowLevel.SparkModel.kSparkMax,
+      drivingMotorType = SparkLowLevel.MotorType.kBrushless,
       drivingMotorCurrentLimit = 80,
       drivingMotorPID = PID(0.04, 0, 0),
       turningMotorCurrentLimit = 20,
