@@ -1,4 +1,5 @@
 from typing import Callable
+from ntcore import NetworkTableInstance
 from wpilib import SmartDashboard
 from wpimath.geometry import Rotation2d, Pose2d, Pose3d
 from wpimath.kinematics import SwerveModulePosition
@@ -27,14 +28,15 @@ class LocalizationService():
       self._getModulePositions(),
       Pose2d(),
       constants.Services.Localization.kStateStandardDeviations,
-      constants.Services.Localization.kVisionDefaultStandardDeviations
+      constants.Services.Localization.kVisionStandardDeviations
     )
 
     self._alliance = None
     self._robotPose = Pose2d()
     self._targets: dict[int, Target] = {}
     self._targetPoses: list[Pose2d] = []
-
+    
+    self._robotPosePublisher = NetworkTableInstance.getDefault().getStructTopic("SmartDashboard/Robot/Localization/Pose", Pose2d).publish()
     SmartDashboard.putNumber("Robot/Game/Field/Length", constants.Game.Field.kLength)
     SmartDashboard.putNumber("Robot/Game/Field/Width", constants.Game.Field.kWidth)
 
@@ -53,11 +55,11 @@ class LocalizationService():
         pose = estimatedRobotPose.estimatedPose.toPose2d()
         if utils.isPoseInBounds(pose, constants.Game.Field.kBounds):
           if estimatedRobotPose.strategy == PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR:
-            self._poseEstimator.addVisionMeasurement(pose, estimatedRobotPose.timestampSeconds, constants.Services.Localization.kVisionMultiTagStandardDeviations)
+            self._poseEstimator.addVisionMeasurement(pose, estimatedRobotPose.timestampSeconds)
           else:
             ambiguity = sum(target.getPoseAmbiguity() for target in estimatedRobotPose.targetsUsed) / len(estimatedRobotPose.targetsUsed)
             if utils.isValueInRange(ambiguity, 0, constants.Services.Localization.kVisionMaxPoseAmbiguity):
-              self._poseEstimator.addVisionMeasurement(pose, estimatedRobotPose.timestampSeconds, constants.Services.Localization.kVisionDefaultStandardDeviations)
+              self._poseEstimator.addVisionMeasurement(pose, estimatedRobotPose.timestampSeconds)
     self._robotPose = self._poseEstimator.getEstimatedPosition()
 
   def getRobotPose(self) -> Pose2d:
@@ -85,4 +87,4 @@ class LocalizationService():
     return False
 
   def _updateTelemetry(self) -> None:
-    SmartDashboard.putNumberArray("Robot/Localization/Pose", [self._robotPose.X(), self._robotPose.Y(), self._robotPose.rotation().degrees()])
+    self._robotPosePublisher.set(self._robotPose)

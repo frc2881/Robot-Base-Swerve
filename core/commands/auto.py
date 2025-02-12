@@ -2,13 +2,13 @@ from typing import TYPE_CHECKING
 from enum import Enum, auto
 from commands2 import Command, cmd
 from wpilib import SendableChooser, SmartDashboard
-from wpimath.geometry import Transform2d
+from wpimath.geometry import Pose2d, Transform2d
 from pathplannerlib.auto import AutoBuilder
 from pathplannerlib.path import PathPlannerPath
 from lib import logger, utils
 from lib.classes import Alliance, TargetAlignmentMode
 if TYPE_CHECKING: from core.robot import RobotCore
-from core.classes import TargetAlignmentLocation
+from core.classes import TargetAlignmentLocation, TargetPositionType, GamePiece
 import core.constants as constants
 
 class AutoPath(Enum):
@@ -52,19 +52,19 @@ class AutoCommands:
       cmd.waitSeconds(0.1)
     )
   
+  def _start(self) -> Command:
+    return cmd.none()
+
   def _move(self, path: AutoPath) -> Command:
-    return AutoBuilder.followPath(self._paths.get(path)).withTimeout(
-      constants.Game.Commands.kAutoMoveTimeout
-    )
+    return AutoBuilder.followPath(self._paths.get(path)).withTimeout(constants.Game.Commands.kAutoMoveTimeout)
   
   def _alignToTarget(self, targetAlignmentLocation: TargetAlignmentLocation) -> Command:
-    return self._robot.gameCommands.alignRobotToTargetCommand(TargetAlignmentMode.Translation, targetAlignmentLocation).withTimeout(
-      constants.Game.Commands.kAutoTargetAlignmentTimeout
-    )
+    return self._robot.gameCommands.alignRobotToTargetCommand(TargetAlignmentMode.Translation, targetAlignmentLocation)
   
   def auto_0_1_(self) -> Command:
     return cmd.sequence(
       self._reset(AutoPath.Move1),
+      self._start(),
       self._move(AutoPath.Move1)
     ).withName("AutoCommands:[0]_1_")
   

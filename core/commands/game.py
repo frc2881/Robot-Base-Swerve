@@ -14,22 +14,24 @@ class GameCommands:
     ) -> None:
     self._robot = robot
 
-  def alignRobotToTargetCommand(self, targetAlignmentMode: TargetAlignmentMode, targetAlignmentLocation: TargetAlignmentLocation = TargetAlignmentLocation.Default, targetType: TargetType = TargetType.Default) -> Command:
-    return cmd.sequence(
-      cmd.parallel(
-        self._robot.driveSubsystem.alignToTargetCommand(
-          self._robot.localizationService.getRobotPose, 
-          self._robot.localizationService.getTargetPose,
-          targetAlignmentMode,
-          targetAlignmentLocation,
-          targetType
-        ),
-        self.rumbleControllersCommand(ControllerRumbleMode.Operator, ControllerRumblePattern.Short),
-        cmd.sequence(
-          cmd.waitUntil(self._robot.driveSubsystem.isAlignedToTarget),
-          self.rumbleControllersCommand(ControllerRumbleMode.Driver, ControllerRumblePattern.Short)
-        )
-      )
+  def alignRobotToTargetCommand(
+      self, 
+      targetAlignmentMode: TargetAlignmentMode, 
+      targetAlignmentLocation: TargetAlignmentLocation = TargetAlignmentLocation.Default, 
+      targetType: TargetType = TargetType.Default
+    ) -> Command:
+    return self._robot.driveSubsystem.alignToTargetCommand(
+      self._robot.localizationService.getRobotPose, 
+      self._robot.localizationService.getTargetPose,
+      targetAlignmentMode,
+      targetAlignmentLocation,
+      targetType
+    ).until(
+      lambda: self._robot.driveSubsystem.isAlignedToTarget()
+    ).withTimeout(
+      constants.Game.Commands.kTargetAlignmentTimeout
+    ).andThen(
+      self.rumbleControllersCommand(ControllerRumbleMode.Driver, ControllerRumblePattern.Short)
     ).withName("GameCommands:AlignRobotToTarget")
 
   def rumbleControllersCommand(self, mode: ControllerRumbleMode, pattern: ControllerRumblePattern) -> Command:
