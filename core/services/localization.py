@@ -88,4 +88,3 @@ class LocalizationService():
 
   def _updateTelemetry(self) -> None:
     self._robotPosePublisher.set(self._robotPose)
-    SmartDashboard.putNumberArray("Robot/Localization/Pose/Data", [self._robotPose.X(), self._robotPose.Y(), self._robotPose.rotation().degrees()])
