@@ -13,7 +13,7 @@ from lib import logger, utils
 from lib.classes import Alliance, PID, Tolerance, SwerveModuleConstants, SwerveModuleConfig, SwerveModuleLocation, PoseSensorConfig, DriftCorrectionConstants, TargetAlignmentConstants
 from core.classes import Target, TargetType, TargetAlignmentLocation
 
-APRIL_TAG_FIELD_LAYOUT = AprilTagFieldLayout().loadField(AprilTagField.k2025Reefscape)
+APRIL_TAG_FIELD_LAYOUT = AprilTagFieldLayout().loadField(AprilTagField.k2025ReefscapeAndyMark)
 PATHPLANNER_ROBOT_CONFIG = RobotConfig.fromGUISettings()
 
 class Subsystems:
