@@ -36,7 +36,7 @@ class LocalizationService():
     self._targets: dict[int, Target] = {}
     self._targetPoses: list[Pose2d] = []
     
-    self._robotPosePublisher = NetworkTableInstance.getDefault().getStructTopic("SmartDashboard/Robot/Localization/Pose/Struct", Pose2d).publish()
+    self._robotPosePublisher = NetworkTableInstance.getDefault().getStructTopic("SmartDashboard/Robot/Localization/Pose", Pose2d).publish()
     SmartDashboard.putNumber("Robot/Game/Field/Length", constants.Game.Field.kLength)
     SmartDashboard.putNumber("Robot/Game/Field/Width", constants.Game.Field.kWidth)
 
